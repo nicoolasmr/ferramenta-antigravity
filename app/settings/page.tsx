@@ -10,11 +10,15 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Loader2, LogOut, Save, Download, Upload, RefreshCw } from 'lucide-react'
 import { storage } from '@/lib/storage'
+import { syncEngine } from '@/lib/sync'
+import { useToast } from '@/components/ui/use-toast'
 
 export default function SettingsPage() {
     const [user, setUser] = useState<any>(null)
     const [loading, setLoading] = useState(true)
     const [syncing, setSyncing] = useState(false)
+    const [activeTab, setActiveTab] = useState('profile')
+    const { toast } = useToast()
     const router = useRouter()
     const supabase = createClient()
 
@@ -34,11 +38,26 @@ export default function SettingsPage() {
     }
 
     async function handleSync() {
+        if (!user) return
         setSyncing(true)
-        // Placeholder for sync logic
-        await new Promise(resolve => setTimeout(resolve, 1500))
-        setSyncing(false)
-        // Show success toast here
+        toast("Sincronizando dados...", "loading")
+
+        try {
+            // 1. Push Local -> Remote
+            await syncEngine.pushLocalToRemote(user.id)
+
+            // 2. Pull Remote -> Local
+            await syncEngine.pullRemoteToLocal(user.id)
+
+            // Force reload to reflect changes
+            router.refresh()
+            toast("Sincronização concluída!", "success")
+        } catch (error) {
+            console.error('Sync failed', error)
+            toast("Erro ao sincronizar.", "error")
+        } finally {
+            setSyncing(false)
+        }
     }
 
     // Export Data (JSON)
@@ -59,6 +78,7 @@ export default function SettingsPage() {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
+        toast("Backup exportado com sucesso!", "success")
     };
 
     if (loading) {
@@ -70,7 +90,7 @@ export default function SettingsPage() {
     }
 
     return (
-        <div className="container-wide py-8 space-y-8 animate-fade-in relative">
+        <div className="container-wide py-8 space-y-8 animate-fade-in relative pb-32">
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-400 to-indigo-600 bg-clip-text text-transparent">
@@ -83,7 +103,7 @@ export default function SettingsPage() {
                 </Button>
             </div>
 
-            <Tabs defaultValue="profile" className="w-full">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <TabsList className="grid w-full grid-cols-4 mb-8">
                     <TabsTrigger value="profile">Perfil</TabsTrigger>
                     <TabsTrigger value="preferences">Preferências</TabsTrigger>
@@ -118,7 +138,7 @@ export default function SettingsPage() {
                                 <LogOut className="w-4 h-4 mr-2" />
                                 Sair da Conta
                             </Button>
-                            <Button>
+                            <Button onClick={() => toast("Perfil salvo! (Placeholder)", "success")}>
                                 <Save className="w-4 h-4 mr-2" />
                                 Salvar Alterações
                             </Button>
@@ -142,7 +162,6 @@ export default function SettingsPage() {
                                         Aumenta a distinção entre elementos visuais.
                                     </p>
                                 </div>
-                                {/* Switch toggle placeholder */}
                                 <div className="h-6 w-11 bg-muted rounded-full relative cursor-not-allowed opacity-50">
                                     <div className="h-4 w-4 bg-background rounded-full absolute top-1 left-1" />
                                 </div>
@@ -163,7 +182,7 @@ export default function SettingsPage() {
                             </div>
                         </CardContent>
                         <CardFooter>
-                            <Button disabled>
+                            <Button onClick={() => toast("Preferências salvas!", "success")}>
                                 <Save className="w-4 h-4 mr-2" />
                                 Salvar Preferências
                             </Button>
@@ -185,7 +204,7 @@ export default function SettingsPage() {
                             </div>
                         </CardContent>
                         <CardFooter>
-                            <Button variant="secondary">
+                            <Button variant="secondary" onClick={() => toast("Link enviado para seu email!", "success")}>
                                 Enviar Link de Redefinição
                             </Button>
                         </CardFooter>

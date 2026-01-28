@@ -10,19 +10,38 @@ import SemanaViva from '@/components/SemanaViva'
 import Impacto from '@/components/Impacto'
 import AlertasHumanos from '@/components/AlertasHumanos'
 import { createClient } from '@/lib/supabase/client'
+import { syncEngine } from '@/lib/sync'
+
 
 export default function Home() {
   const [user, setUser] = useState<any>(null)
+  const [activeTab, setActiveTab] = useState('check')
   const router = useRouter()
   const supabase = createClient()
 
   useEffect(() => {
-    async function getUser() {
+    async function getUserAndSync() {
       const { data: { user } } = await supabase.auth.getUser()
       setUser(user)
+
+      if (user) {
+        // Auto-pull latest data from Supabase to ensure consistency
+        try {
+          await syncEngine.pullRemoteToLocal(user.id)
+          // Force a re-render of components listening to storage? 
+          // Components read from storage on mount. We need to make sure this happens fast or trigger a reload.
+          // Ideally we'd use a context/store, but for now we rely on the component's internal useEffects.
+          // If this pull finishes AFTER components mount, they show stale data.
+          // Hack: Force reload or rely on "Sincronizar Agora" for edge cases. 
+          // Better: Pass a key to tabs to force re-render.
+        } catch (e) {
+          console.error("Auto-sync failed", e)
+        }
+      }
     }
-    getUser()
+    getUserAndSync()
   }, [])
+
 
   return (
     <div className="min-h-screen bg-background text-foreground animate-fade-in pb-20">
@@ -66,7 +85,8 @@ export default function Home() {
         </header>
 
         {/* Main Content */}
-        <Tabs defaultValue="check" className="w-full space-y-8">
+        <Tabs key={user ? 'logged-in' : 'guest'} value={activeTab} onValueChange={setActiveTab} className="w-full space-y-8">
+
           <div className="flex overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0 md:pb-0 scrollbar-hide">
             <TabsList className="bg-secondary/50 backdrop-blur-md border border-white/5 p-1 h-auto flex-nowrap w-full md:w-auto overflow-visible gap-1 justify-start">
               <TabsTrigger value="check" className="px-6 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
