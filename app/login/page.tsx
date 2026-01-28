@@ -147,6 +147,7 @@ export default function LoginPage() {
                         <p className="text-muted-foreground mt-2">Clareza diária, sem peso mental.</p>
                     </div>
 
+                    {/* Main Auth Tabs */}
                     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                         <TabsList className="grid w-full grid-cols-2 mb-4">
                             <TabsTrigger value="login">Entrar</TabsTrigger>
