@@ -1,14 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Clock, Save, CheckCircle2, ChevronRight, AlertCircle, TrendingUp, DollarSign } from 'lucide-react';
+import { Save, CheckCircle2, AlertCircle, TrendingUp, DollarSign } from 'lucide-react';
 import { storage, DailyCheck, OperationStatus, ContentStatus, CommercialAlignment, TomorrowTrend } from '@/lib/storage';
 import { getTodayISO, getRelativeTime } from '@/lib/date-utils';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
+import { BadgeStatus } from '@/components/ui/badge-status';
+import { SegmentedControl, SegmentedControlList, SegmentedControlTrigger } from '@/components/ui/segmented-control';
 import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
 
@@ -66,7 +66,7 @@ export default function CheckDiario() {
     const isComplete = check.operationStatus && check.contentStatus && check.commercialAlignment && check.tomorrowTrend;
 
     return (
-        <div className="space-y-6 max-w-2xl mx-auto animate-fade-in">
+        <div className="space-y-6 max-w-2xl mx-auto animate-fade-in pb-24">
             {/* Header Card */}
             <Card className="border-l-4 border-l-primary bg-secondary/30">
                 <CardHeader>
@@ -75,10 +75,12 @@ export default function CheckDiario() {
                             <CardTitle className="text-xl">Check Diário</CardTitle>
                             <CardDescription>Consciência operacional</CardDescription>
                         </div>
-                        <Badge variant="outline" className="flex gap-1 data-[saved=true]:bg-emerald-500/10 data-[saved=true]:text-emerald-500" data-saved={!!lastSaved}>
-                            <Clock className="w-3 h-3" />
+                        <BadgeStatus
+                            variant={lastSaved ? 'success' : 'outline'}
+                            icon={lastSaved ? 'check' : 'clock'}
+                        >
                             {lastSaved ? 'Salvo' : 'Pendente'}
-                        </Badge>
+                        </BadgeStatus>
                     </div>
                 </CardHeader>
             </Card>
@@ -96,13 +98,13 @@ export default function CheckDiario() {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <Tabs value={check.operationStatus} onValueChange={(v) => setCheck({ ...check, operationStatus: v as OperationStatus })} className="w-full">
-                            <TabsList className="w-full grid grid-cols-3">
-                                <TabsTrigger value="green">🟢 Sob controle</TabsTrigger>
-                                <TabsTrigger value="yellow">🟡 Atenção</TabsTrigger>
-                                <TabsTrigger value="red">🔴 Travando</TabsTrigger>
-                            </TabsList>
-                        </Tabs>
+                        <SegmentedControl value={check.operationStatus} onValueChange={(v: string) => setCheck({ ...check, operationStatus: v as OperationStatus })}>
+                            <SegmentedControlList>
+                                <SegmentedControlTrigger value="green">🟢 Sob controle</SegmentedControlTrigger>
+                                <SegmentedControlTrigger value="yellow">🟡 Atenção</SegmentedControlTrigger>
+                                <SegmentedControlTrigger value="red">🔴 Travando</SegmentedControlTrigger>
+                            </SegmentedControlList>
+                        </SegmentedControl>
                     </CardContent>
                 </Card>
 
@@ -117,13 +119,13 @@ export default function CheckDiario() {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <Tabs value={check.contentStatus} onValueChange={(v) => setCheck({ ...check, contentStatus: v as ContentStatus })} className="w-full">
-                            <TabsList className="w-full grid grid-cols-3">
-                                <TabsTrigger value="fulfilled">Sim</TabsTrigger>
-                                <TabsTrigger value="at-risk">Em risco</TabsTrigger>
-                                <TabsTrigger value="not-priority">Não prioritário</TabsTrigger>
-                            </TabsList>
-                        </Tabs>
+                        <SegmentedControl value={check.contentStatus} onValueChange={(v: string) => setCheck({ ...check, contentStatus: v as ContentStatus })}>
+                            <SegmentedControlList>
+                                <SegmentedControlTrigger value="fulfilled">Sim</SegmentedControlTrigger>
+                                <SegmentedControlTrigger value="at-risk">Em risco</SegmentedControlTrigger>
+                                <SegmentedControlTrigger value="not-priority">Não prioritário</SegmentedControlTrigger>
+                            </SegmentedControlList>
+                        </SegmentedControl>
                     </CardContent>
                 </Card>
 
@@ -138,13 +140,13 @@ export default function CheckDiario() {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <Tabs value={check.commercialAlignment} onValueChange={(v) => setCheck({ ...check, commercialAlignment: v as CommercialAlignment })} className="w-full">
-                            <TabsList className="w-full grid grid-cols-3">
-                                <TabsTrigger value="aligned">Sim</TabsTrigger>
-                                <TabsTrigger value="partial">Parcialmente</TabsTrigger>
-                                <TabsTrigger value="misaligned">Não</TabsTrigger>
-                            </TabsList>
-                        </Tabs>
+                        <SegmentedControl value={check.commercialAlignment} onValueChange={(v: string) => setCheck({ ...check, commercialAlignment: v as CommercialAlignment })}>
+                            <SegmentedControlList>
+                                <SegmentedControlTrigger value="aligned">Sim</SegmentedControlTrigger>
+                                <SegmentedControlTrigger value="partial">Parcialmente</SegmentedControlTrigger>
+                                <SegmentedControlTrigger value="misaligned">Não</SegmentedControlTrigger>
+                            </SegmentedControlList>
+                        </SegmentedControl>
                     </CardContent>
                 </Card>
 
@@ -206,13 +208,13 @@ export default function CheckDiario() {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <Tabs value={check.tomorrowTrend} onValueChange={(v) => setCheck({ ...check, tomorrowTrend: v as TomorrowTrend })} className="w-full">
-                            <TabsList className="w-full grid grid-cols-3">
-                                <TabsTrigger value="better">Melhor ↗</TabsTrigger>
-                                <TabsTrigger value="same">Igual →</TabsTrigger>
-                                <TabsTrigger value="worse">Pior ↘</TabsTrigger>
-                            </TabsList>
-                        </Tabs>
+                        <SegmentedControl value={check.tomorrowTrend} onValueChange={(v: string) => setCheck({ ...check, tomorrowTrend: v as TomorrowTrend })}>
+                            <SegmentedControlList>
+                                <SegmentedControlTrigger value="better">Melhor ↗</SegmentedControlTrigger>
+                                <SegmentedControlTrigger value="same">Igual →</SegmentedControlTrigger>
+                                <SegmentedControlTrigger value="worse">Pior ↘</SegmentedControlTrigger>
+                            </SegmentedControlList>
+                        </SegmentedControl>
                     </CardContent>
                 </Card>
             </div>

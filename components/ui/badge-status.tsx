@@ -1,0 +1,51 @@
+import * as React from 'react'
+import { cva, type VariantProps } from 'class-variance-authority'
+import { cn } from '@/lib/utils'
+import { Check, AlertCircle, Clock, X } from 'lucide-react'
+
+const badgeVariants = cva(
+    'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
+    {
+        variants: {
+            variant: {
+                default:
+                    'border-transparent bg-primary text-primary-foreground hover:bg-primary/80',
+                secondary:
+                    'border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80',
+                destructive:
+                    'border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80',
+                outline: 'text-foreground',
+                success: 'border-transparent bg-emerald-500/15 text-emerald-500 hover:bg-emerald-500/25',
+                warning: 'border-transparent bg-amber-500/15 text-amber-500 hover:bg-amber-500/25',
+                error: 'border-transparent bg-red-500/15 text-red-500 hover:bg-red-500/25',
+            },
+        },
+        defaultVariants: {
+            variant: 'default',
+        },
+    }
+)
+
+export interface BadgeStatusProps
+    extends React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof badgeVariants> {
+    icon?: 'check' | 'alert' | 'clock' | 'x'
+}
+
+function BadgeStatus({ className, variant, icon, children, ...props }: BadgeStatusProps) {
+    const IconComponent = {
+        check: Check,
+        alert: AlertCircle,
+        clock: Clock,
+        x: X
+    }[icon || 'check']
+
+    return (
+        <div className={cn(badgeVariants({ variant }), className)} {...props}>
+            {icon && IconComponent && <IconComponent className="mr-1 h-3 w-3" />}
+            {children}
+        </div>
+    )
+}
+
+export { BadgeStatus, badgeVariants }

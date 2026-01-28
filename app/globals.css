@@ -38,37 +38,40 @@
 
 @layer base {
   :root {
+    /* Slate 950 - Deep Background */
     --background: hsl(222.2 84% 4.9%);
-    /* Slate 950 */
     --foreground: hsl(210 40% 98%);
-    /* Slate 50 */
 
-    --card: hsl(222.2 84% 4.9%);
+    /* Cards - Slightly lighter than bg */
+    --card: hsl(222.2 84% 6.5%);
     --card-foreground: hsl(210 40% 98%);
 
-    --popover: hsl(222.2 84% 4.9%);
+    --popover: hsl(222.2 84% 6.5%);
     --popover-foreground: hsl(210 40% 98%);
 
+    /* Indigo 600 - Primary */
     --primary: hsl(243 75% 59%);
-    /* Indigo 600 */
     --primary-foreground: hsl(210 40% 98%);
 
-    --secondary: hsl(217.2 32.6% 17.5%);
-    /* Slate 800 */
+    /* Slate 800/900 mix - Secondary */
+    --secondary: hsl(217.2 32.6% 12%);
     --secondary-foreground: hsl(210 40% 98%);
 
-    --muted: hsl(217.2 32.6% 17.5%);
+    /* Muted text/bg */
+    --muted: hsl(217.2 32.6% 12%);
     --muted-foreground: hsl(215 20.2% 65.1%);
-    /* Slate 400 */
 
-    --accent: hsl(217.2 32.6% 17.5%);
+    /* Accent for hovers */
+    --accent: hsl(217.2 32.6% 12%);
     --accent-foreground: hsl(210 40% 98%);
 
     --destructive: hsl(0 62.8% 30.6%);
     --destructive-foreground: hsl(210 40% 98%);
 
-    --border: hsl(217.2 32.6% 17.5%);
-    --input: hsl(217.2 32.6% 17.5%);
+    /* Borders - Subtle White/10% */
+    --border: hsl(217.2 32.6% 17.5% / 0.5);
+    --input: hsl(217.2 32.6% 17.5% / 0.5);
+
     --ring: hsl(243 75% 59%);
 
     --radius: 0.75rem;
@@ -85,8 +88,9 @@
   }
 }
 
+/* Glassmorphism Utilities */
 @utility glass {
-  @apply bg-slate-950/50 backdrop-blur-xl border border-white/5 shadow-2xl;
+  @apply bg-slate-950/40 backdrop-blur-xl border border-white/5 shadow-2xl;
 }
 
 @utility container-wide {
@@ -123,20 +127,14 @@
 }
 
 @utility animate-fade-in {
-  animation: fadeIn 0.5s ease-out forwards;
+  animation: fadeIn 0.4s ease-out forwards;
 }
 
 @utility animate-slide-in {
-  animation: slideIn 0.5s ease-out forwards;
+  animation: slideIn 0.4s ease-out forwards;
 }
 
 @utility scrollbar-hide {
   -ms-overflow-style: none;
-  /* IE and Edge */
   scrollbar-width: none;
-  /* Firefox */
-}
-
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
 }
