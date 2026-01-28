@@ -9,6 +9,7 @@ import CheckDiario from '@/components/CheckDiario'
 import SemanaViva from '@/components/SemanaViva'
 import Impacto from '@/components/Impacto'
 import AlertasHumanos from '@/components/AlertasHumanos'
+import NumerosAncora from '@/components/NumerosAncora'
 import { createClient } from '@/lib/supabase/client'
 import { syncEngine } from '@/lib/sync'
 
@@ -97,6 +98,10 @@ export default function Home() {
                 <TrendingUp className="w-4 h-4 mr-2" />
                 Semana Viva
               </TabsTrigger>
+              <TabsTrigger value="numeros" className="px-6 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                <TrendingUp className="w-4 h-4 mr-2" />
+                Números
+              </TabsTrigger>
               <TabsTrigger value="impacto" className="px-6 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <Award className="w-4 h-4 mr-2" />
                 Impacto
@@ -113,6 +118,9 @@ export default function Home() {
           </TabsContent>
           <TabsContent value="semana">
             <SemanaViva />
+          </TabsContent>
+          <TabsContent value="numeros">
+            <NumerosAncora />
           </TabsContent>
           <TabsContent value="impacto">
             <Impacto />

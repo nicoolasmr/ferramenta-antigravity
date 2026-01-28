@@ -53,7 +53,7 @@ export function getRadarDeVermelhos(
                 metricName: metric.name,
                 value: entry.value,
                 unit: metric.unit,
-                action: metric.playbook.red,
+                action: metric.playbook.actionIfRed,
                 addressed: entry.addressed || false,
             });
         }
@@ -82,8 +82,8 @@ export function createDefaultMetrics(): AnchorMetric[] {
                 red: { min: 0 },
             },
             playbook: {
-                yellow: 'Revisar canais de aquisição e ajustar CTAs',
-                red: 'Avisar comercial + puxar lista quente + ajustar CTA do dia',
+                actionIfYellow: 'Revisar canais de aquisição e ajustar CTAs',
+                actionIfRed: 'Avisar comercial + puxar lista quente + ajustar CTA do dia',
             },
             isActive: true,
             createdAt: now,
@@ -103,8 +103,8 @@ export function createDefaultMetrics(): AnchorMetric[] {
                 red: { max: 999 },
             },
             playbook: {
-                yellow: 'Revisar prioridades e realocar recursos se necessário',
-                red: 'Redistribuir carga imediatamente ou escalar para liderança',
+                actionIfYellow: 'Revisar prioridades e realocar recursos se necessário',
+                actionIfRed: 'Redistribuir carga imediatamente ou escalar para liderança',
             },
             isActive: true,
             createdAt: now,
@@ -124,8 +124,8 @@ export function createDefaultMetrics(): AnchorMetric[] {
                 red: { min: 0 },
             },
             playbook: {
-                yellow: 'Revisar calendário editorial e simplificar formatos',
-                red: 'Pausar outras atividades e focar em conteúdo essencial',
+                actionIfYellow: 'Revisar calendário editorial e simplificar formatos',
+                actionIfRed: 'Pausar outras atividades e focar em conteúdo essencial',
             },
             isActive: true,
             createdAt: now,
@@ -145,8 +145,8 @@ export function createDefaultMetrics(): AnchorMetric[] {
                 red: { min: 0 },
             },
             playbook: {
-                yellow: 'Testar novos formatos e revisar propósito do conteúdo',
-                red: 'Revisar estratégia completa: formato, distribuição e propósito',
+                actionIfYellow: 'Testar novos formatos e revisar propósito do conteúdo',
+                actionIfRed: 'Revisar estratégia completa: formato, distribuição e propósito',
             },
             isActive: true,
             createdAt: now,
@@ -166,8 +166,8 @@ export function createDefaultMetrics(): AnchorMetric[] {
                 red: { min: 0 },
             },
             playbook: {
-                yellow: 'Ativar outbound e revisar follow-ups pendentes',
-                red: 'Campanha intensiva de reativação + prospecção ativa',
+                actionIfYellow: 'Ativar outbound e revisar follow-ups pendentes',
+                actionIfRed: 'Campanha intensiva de reativação + prospecção ativa',
             },
             isActive: true,
             createdAt: now,
@@ -187,8 +187,8 @@ export function createDefaultMetrics(): AnchorMetric[] {
                 red: { min: 0 },
             },
             playbook: {
-                yellow: 'Revisar pipeline e acelerar negociações em andamento',
-                red: 'Reunião de emergência comercial + revisar objeções comuns',
+                actionIfYellow: 'Revisar pipeline e acelerar negociações em andamento',
+                actionIfRed: 'Reunião de emergência comercial + revisar objeções comuns',
             },
             isActive: true,
             createdAt: now,

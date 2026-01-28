@@ -65,6 +65,33 @@ export const syncEngine = {
             const { error } = await supabase.from('dismissed_alerts').upsert(items, { onConflict: 'user_id, alert_id' })
             if (error) console.error('Sync Error (Alerts):', error)
         }
+
+        // 5. Anchor Metrics (NEW)
+        const metrics = storage.getAnchorMetrics()
+        if (metrics.length > 0) {
+            const items = metrics.map(item => ({
+                id: item.id,
+                user_id: userId,
+                payload: item,
+                updated_at: item.createdAt || new Date().toISOString()
+            }))
+            const { error } = await supabase.from('anchor_metrics').upsert(items, { onConflict: 'user_id, id' })
+            if (error) console.error('Sync Error (Anchor Metrics):', error)
+        }
+
+        // 6. Metric Entries (NEW)
+        const entries = storage.getMetricEntries()
+        if (entries.length > 0) {
+            const items = entries.map(item => ({
+                user_id: userId,
+                date: item.date,
+                metric_id: item.metricId,
+                payload: item,
+                updated_at: item.updatedAt || new Date().toISOString()
+            }))
+            const { error } = await supabase.from('metric_entries').upsert(items, { onConflict: 'user_id, metric_id, date' })
+            if (error) console.error('Sync Error (Metric Entries):', error)
+        }
     },
 
     /**
@@ -99,6 +126,18 @@ export const syncEngine = {
         const { data: alerts } = await supabase.from('dismissed_alerts').select('alert_id')
         if (alerts) {
             alerts.forEach((row: any) => storage.dismissAlert(row.alert_id))
+        }
+
+        // 5. Anchor Metrics (NEW)
+        const { data: metrics } = await supabase.from('anchor_metrics').select('payload')
+        if (metrics) {
+            metrics.forEach((row: any) => storage.saveAnchorMetric(row.payload))
+        }
+
+        // 6. Metric Entries (NEW)
+        const { data: entries } = await supabase.from('metric_entries').select('payload')
+        if (entries) {
+            entries.forEach((row: any) => storage.saveMetricEntry(row.payload))
         }
     }
 }

@@ -169,7 +169,7 @@ function analyzeMetricPatterns(
                     id: `metric-drop-${metric.id}`,
                     type: 'warning',
                     message: `A métrica "${metric.name}" está em vermelho há 3 ${period} seguidos.`,
-                    suggestion: metric.playbook.red,
+                    suggestion: metric.playbook.actionIfRed,
                     createdAt: new Date().toISOString(),
                 });
             }

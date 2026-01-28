@@ -115,3 +115,38 @@ $$ language plpgsql security definer;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
+
+-- Table: anchor_metrics
+create table public.anchor_metrics (
+  id uuid primary key,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  payload jsonb not null,
+  updated_at timestamp with time zone default now(),
+  unique(user_id, id)
+);
+
+-- Table: metric_entries
+create table public.metric_entries (
+  id uuid default uuid_generate_v4() primary key,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  date date not null,
+  metric_id uuid not null,
+  payload jsonb not null,
+  updated_at timestamp with time zone default now(),
+  unique(user_id, metric_id, date)
+);
+
+-- RLS Policies for new tables
+alter table public.anchor_metrics enable row level security;
+alter table public.metric_entries enable row level security;
+
+create policy "Users can view own anchor_metrics" on public.anchor_metrics for select using (auth.uid() = user_id);
+create policy "Users can insert own anchor_metrics" on public.anchor_metrics for insert with check (auth.uid() = user_id);
+create policy "Users can update own anchor_metrics" on public.anchor_metrics for update using (auth.uid() = user_id);
+create policy "Users can delete own anchor_metrics" on public.anchor_metrics for delete using (auth.uid() = user_id);
+
+create policy "Users can view own metric_entries" on public.metric_entries for select using (auth.uid() = user_id);
+create policy "Users can insert own metric_entries" on public.metric_entries for insert with check (auth.uid() = user_id);
+create policy "Users can update own metric_entries" on public.metric_entries for update using (auth.uid() = user_id);
+create policy "Users can delete own metric_entries" on public.metric_entries for delete using (auth.uid() = user_id);
+

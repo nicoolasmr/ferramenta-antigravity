@@ -75,8 +75,8 @@ export interface AnchorMetric {
         red: { min?: number; max?: number };
     };
     playbook: {
-        yellow: string;
-        red: string;
+        actionIfYellow: string;
+        actionIfRed: string;
     };
     isActive: boolean;
     createdAt: string;
