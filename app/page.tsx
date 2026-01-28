@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Calendar, TrendingUp, Award, Shield, Settings, LogOut, ChevronRight, User } from 'lucide-react'
+import { Calendar, TrendingUp, Award, Shield, Settings, LogOut, ChevronRight, User, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import CheckDiario from '@/components/CheckDiario'
@@ -10,6 +10,7 @@ import SemanaViva from '@/components/SemanaViva'
 import Impacto from '@/components/Impacto'
 import AlertasHumanos from '@/components/AlertasHumanos'
 import NumerosAncora from '@/components/NumerosAncora'
+import NumerosInteligencia from '@/components/NumerosInteligencia'
 import { createClient } from '@/lib/supabase/client'
 import { syncEngine } from '@/lib/sync'
 
@@ -90,6 +91,10 @@ export default function Home() {
 
           <div className="flex overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0 md:pb-0 scrollbar-hide">
             <TabsList className="bg-secondary/50 backdrop-blur-md border border-white/5 p-1 h-auto flex-nowrap w-full md:w-auto overflow-visible gap-1 justify-start">
+              <TabsTrigger value="inteligencia" className="px-6 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                <Sparkles className="w-4 h-4 mr-2" />
+                Inteligência
+              </TabsTrigger>
               <TabsTrigger value="check" className="px-6 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <Calendar className="w-4 h-4 mr-2" />
                 Check Diário
@@ -108,11 +113,14 @@ export default function Home() {
               </TabsTrigger>
               <TabsTrigger value="alertas" className="px-6 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <Shield className="w-4 h-4 mr-2" />
-                Alertas Humanos
+                Alertas
               </TabsTrigger>
             </TabsList>
           </div>
 
+          <TabsContent value="inteligencia">
+            <NumerosInteligencia />
+          </TabsContent>
           <TabsContent value="check">
             <CheckDiario />
           </TabsContent>
