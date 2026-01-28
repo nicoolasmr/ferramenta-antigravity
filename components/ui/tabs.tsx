@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import * as TabsPrimitive from "@radix-ui/react-tabs"
+
 import { cn } from "@/lib/utils"
 
 // Since we are not installing radix-ui just for this, I'll implement a simpler version

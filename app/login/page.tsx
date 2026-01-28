@@ -16,6 +16,7 @@ export default function LoginPage() {
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [message, setMessage] = useState<string | null>(null)
+    const [activeTab, setActiveTab] = useState('login')
 
     const router = useRouter()
     const supabase = createClient()
@@ -146,7 +147,7 @@ export default function LoginPage() {
                         <p className="text-muted-foreground mt-2">Clareza diária, sem peso mental.</p>
                     </div>
 
-                    <Tabs defaultValue="login" className="w-full">
+                    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                         <TabsList className="grid w-full grid-cols-2 mb-4">
                             <TabsTrigger value="login">Entrar</TabsTrigger>
                             <TabsTrigger value="register">Criar Conta</TabsTrigger>
