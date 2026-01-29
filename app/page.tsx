@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Calendar, TrendingUp, Award, Shield, Settings, LogOut, ChevronRight, User, Sparkles, Target, Brain, Heart, Search, LayoutDashboard } from 'lucide-react'
@@ -13,6 +13,7 @@ import AlertasHumanos from '@/components/AlertasHumanos'
 import NumerosAncora from '@/components/NumerosAncora'
 import NumerosInteligencia from '@/components/NumerosInteligencia'
 import AIChat from '@/components/AIChat'
+import LiveStatus from '@/components/LiveStatus'
 import Onboarding from '@/components/Onboarding'
 import RitualHoje from '@/components/RitualHoje'
 import SyncBadge from '@/components/SyncBadge'
@@ -21,10 +22,23 @@ import { syncEngine } from '@/lib/sync'
 import { storage } from '@/lib/storage'
 import { cn } from '@/lib/utils'
 
-
 export default function Home() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          <p className="text-slate-400 font-medium text-sm">Carregando Centro de Comando...</p>
+        </div>
+      </div>
+    }>
+      <DashboardContent />
+    </Suspense>
+  )
+}
+
+function DashboardContent() {
   const [user, setUser] = useState<any>(null)
-  // Move to useSearchParams for state
   const searchParams = useSearchParams()
   const router = useRouter()
   const [showOnboarding, setShowOnboarding] = useState(false)
@@ -88,11 +102,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background text-foreground animate-fade-in pb-20 font-sans selection:bg-primary/10 transition-colors duration-700">
-      {/* Background Partitions - Soft Beige/Cream Split */}
-      {/* Background Partitions - Removed Hardcoded Beige */
-        /* Now relying on body bg-background which is dark purple */
-      }
-
       <div className="max-w-[1400px] mx-auto flex gap-8 pt-12 px-6">
         {/* Left Sidebar Navigation */}
         <aside className="w-64 shrink-0 flex flex-col gap-10">
@@ -154,12 +163,25 @@ export default function Home() {
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
 
             <TabsContent value="comando" className="mt-0 focus-visible:outline-none animate-in fade-in zoom-in-95 duration-500">
-              <div className="max-w-4xl mx-auto py-8 space-y-8">
-                <div className="text-center space-y-4 mb-8">
+              <div className="max-w-6xl mx-auto py-8 space-y-8">
+                <div className="text-center space-y-4 mb-4">
                   <h2 className="text-4xl font-extrabold text-slate-900 tracking-tight dark:text-white">Centro de Comando</h2>
-                  <p className="text-slate-500 font-medium">Controle sua operação em linguagem natural.</p>
+                  <p className="text-slate-500 font-medium">Controle total. Operação sem peso.</p>
                 </div>
-                <AIChat />
+
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                  {/* Left Side: Live Monitors */}
+                  <div className="lg:col-span-5 order-2 lg:order-1">
+                    <div className="bg-white/50 backdrop-blur-xl border border-white/20 p-6 rounded-3xl shadow-xl">
+                      <LiveStatus />
+                    </div>
+                  </div>
+
+                  {/* Right Side: Master Chat */}
+                  <div className="lg:col-span-7 order-1 lg:order-2">
+                    <AIChat />
+                  </div>
+                </div>
               </div>
             </TabsContent>
 
