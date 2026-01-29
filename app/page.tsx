@@ -129,22 +129,22 @@ function DashboardContent() {
                 className={cn(
                   "flex items-center gap-4 px-6 py-4 rounded-2xl text-sm font-extrabold uppercase tracking-widest transition-all duration-300",
                   activeTab === tab.value
-                    ? "text-primary bg-card shadow-xl shadow-primary/5 ring-1 ring-border translate-x-1"
+                    ? "text-primary bg-card/10 shadow-xl shadow-primary/5 ring-1 ring-white/10 translate-x-1"
                     : "text-muted-foreground hover:text-foreground hover:bg-white/5"
                 )}
               >
-                <tab.icon className={cn("w-5 h-5", activeTab === tab.value ? "text-primary" : "text-slate-300")} />
+                <tab.icon className={cn("w-5 h-5", activeTab === tab.value ? "text-primary" : "text-slate-500")} />
                 {tab.label}
               </button>
             ))}
           </nav>
 
           <div className="mt-auto px-4 pb-12">
-            <div className="p-6 rounded-3xl bg-card border border-border shadow-sm space-y-4">
+            <div className="p-6 rounded-3xl bg-card/20 border border-white/5 shadow-sm space-y-4">
               <SyncBadge />
-              <div className="pt-4 border-t border-border">
+              <div className="pt-4 border-t border-white/5">
                 {user ? (
-                  <Button variant="ghost" className="w-full justify-start px-0 text-muted-foreground font-bold hover:text-primary" onClick={() => router.push('/settings')}>
+                  <Button variant="ghost" className="w-full justify-start px-0 text-muted-foreground font-bold hover:text-primary hover:bg-transparent" onClick={() => router.push('/settings')}>
                     <Settings className="w-4 h-4 mr-3" />
                     Configurações
                   </Button>
@@ -159,20 +159,23 @@ function DashboardContent() {
         </aside>
 
         {/* Main Workspace (Card Sheet) */}
-        <main className="flex-1 min-h-[90vh] sheet p-12 relative overflow-hidden transition-colors duration-500">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <main className="flex-1 min-h-[90vh] sheet p-12 relative overflow-hidden transition-colors duration-500 bg-card/30 backdrop-blur-3xl border-white/5">
+          {/* Ambient Background Glow inside sheet if needed */}
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full relative z-10">
 
             <TabsContent value="comando" className="mt-0 focus-visible:outline-none animate-in fade-in zoom-in-95 duration-500">
               <div className="max-w-6xl mx-auto py-8 space-y-8">
                 <div className="text-center space-y-4 mb-4">
-                  <h2 className="text-4xl font-extrabold text-slate-900 tracking-tight dark:text-white">Centro de Comando</h2>
-                  <p className="text-slate-500 font-medium">Controle total. Operação sem peso.</p>
+                  <h2 className="text-4xl font-extrabold text-white tracking-tight title-glow">Centro de Comando</h2>
+                  <p className="text-slate-400 font-medium">Controle total. Operação sem peso.</p>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                   {/* Left Side: Live Monitors */}
                   <div className="lg:col-span-5 order-2 lg:order-1">
-                    <div className="bg-white/50 backdrop-blur-xl border border-white/20 p-6 rounded-3xl shadow-xl">
+                    <div className="bg-black/20 backdrop-blur-xl border border-white/5 p-6 rounded-3xl shadow-xl">
                       <LiveStatus />
                     </div>
                   </div>
@@ -189,48 +192,48 @@ function DashboardContent() {
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
                 {/* Left Column: Personal Dashboard */}
                 <div className="lg:col-span-7 space-y-12">
-                  <div className="bg-slate-50/30 rounded-[2rem] p-10 border border-slate-100 group hover:border-primary/20 transition-all duration-500">
+                  <div className="bg-black/20 rounded-[2rem] p-10 border border-white/5 group hover:border-primary/20 transition-all duration-500">
                     <div className="mb-10 space-y-2">
-                      <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+                      <h2 className="text-3xl font-extrabold text-white tracking-tight">
                         Olá, Sofia,
                       </h2>
-                      <p className="text-lg text-slate-500 font-medium italic">
+                      <p className="text-lg text-slate-400 font-medium italic">
                         "Onde sua atenção flui, sua energia cresce."
                       </p>
                     </div>
 
                     <div className="space-y-10">
-                      <div className="pt-8 border-t border-slate-200/50">
-                        <h3 className="text-[10px] uppercase font-bold text-slate-400 tracking-[0.2em] mb-8">Estado de Fluxo</h3>
+                      <div className="pt-8 border-t border-white/5">
+                        <h3 className="text-[10px] uppercase font-bold text-slate-500 tracking-[0.2em] mb-8">Estado de Fluxo</h3>
 
                         <div className="flex flex-wrap items-center gap-16">
                           {/* Dashboard Gauge (92%) */}
                           <div className="relative w-44 h-44 flex items-center justify-center">
                             <svg className="w-full h-full transform -rotate-90">
-                              <circle cx="88" cy="88" r="70" stroke="currentColor" strokeWidth="12" fill="transparent" className="text-slate-100" />
-                              <circle cx="88" cy="88" r="70" stroke="currentColor" strokeWidth="12" fill="transparent" strokeDasharray={440} strokeDashoffset={440 * (1 - 0.92)} className="text-primary/40" />
-                              <circle cx="88" cy="88" r="60" stroke="currentColor" strokeWidth="8" fill="transparent" strokeDasharray={376} strokeDashoffset={376 * (1 - 0.75)} className="text-amber-200/60" />
+                              <circle cx="88" cy="88" r="70" stroke="currentColor" strokeWidth="12" fill="transparent" className="text-white/5" />
+                              <circle cx="88" cy="88" r="70" stroke="currentColor" strokeWidth="12" fill="transparent" strokeDasharray={440} strokeDashoffset={440 * (1 - 0.92)} className="text-primary" />
+                              <circle cx="88" cy="88" r="60" stroke="currentColor" strokeWidth="8" fill="transparent" strokeDasharray={376} strokeDashoffset={376 * (1 - 0.75)} className="text-amber-200/20" />
                             </svg>
                             <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                              <span className="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Balance</span>
-                              <span className="text-3xl font-extrabold text-slate-800">92%</span>
+                              <span className="text-[10px] uppercase font-bold text-slate-500 tracking-widest">Balance</span>
+                              <span className="text-3xl font-extrabold text-white">92%</span>
                             </div>
                           </div>
 
                           {/* Stats List */}
                           <div className="space-y-6">
                             {[
-                              { label: 'Energia:', val: 'Alta', color: 'bg-amber-100 text-amber-600', icon: Sparkles },
-                              { label: 'Foco:', val: 'Estável', color: 'bg-blue-50 text-blue-500', icon: Target },
-                              { label: 'Bem-estar:', val: 'Excelente', color: 'bg-rose-50 text-rose-500', icon: Heart }
+                              { label: 'Energia:', val: 'Alta', color: 'bg-amber-500/10 text-amber-500', icon: Sparkles },
+                              { label: 'Foco:', val: 'Estável', color: 'bg-blue-500/10 text-blue-500', icon: Target },
+                              { label: 'Bem-estar:', val: 'Excelente', color: 'bg-rose-500/10 text-rose-500', icon: Heart }
                             ].map((stat, i) => (
                               <div key={i} className="flex items-center gap-4 group/stat">
                                 <div className={cn("p-2 rounded-xl transition-all group-hover/stat:scale-110", stat.color)}>
                                   <stat.icon className="w-4 h-4" />
                                 </div>
                                 <div className="flex flex-col">
-                                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{stat.label}</span>
-                                  <span className="text-sm font-extrabold text-slate-700">{stat.val}</span>
+                                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{stat.label}</span>
+                                  <span className="text-sm font-extrabold text-slate-200">{stat.val}</span>
                                 </div>
                               </div>
                             ))}
@@ -239,19 +242,19 @@ function DashboardContent() {
                       </div>
 
                       {/* Sessions Preview */}
-                      <div className="pt-10 border-t border-slate-200/50">
+                      <div className="pt-10 border-t border-white/5">
                         <div className="space-y-6">
-                          <h3 className="text-[10px] uppercase font-bold text-slate-400 tracking-[0.2em]">Sessões Recomendadas</h3>
+                          <h3 className="text-[10px] uppercase font-bold text-slate-500 tracking-[0.2em]">Sessões Recomendadas</h3>
                           <div className="space-y-4">
                             {[
                               { date: 'Hoje', title: 'Meditação Guiada' },
                               { date: 'Amanhã', title: 'Workshop de Equilíbrio' }
                             ].map((session, i) => (
-                              <div key={i} className="flex items-center gap-4 p-4 rounded-2xl bg-white border border-slate-100/50 group/session hover:border-primary/30 transition-all">
-                                <div className="p-2 bg-purple-50 rounded-xl text-primary font-bold text-xs">
+                              <div key={i} className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 group/session hover:border-primary/30 transition-all">
+                                <div className="p-2 bg-primary/10 rounded-xl text-primary font-bold text-xs">
                                   {session.date}
                                 </div>
-                                <span className="text-sm font-bold text-slate-600">{session.title}</span>
+                                <span className="text-sm font-bold text-slate-300">{session.title}</span>
                               </div>
                             ))}
                           </div>
@@ -263,25 +266,25 @@ function DashboardContent() {
 
                 {/* Right Column: Ritual Progress */}
                 <div className="lg:col-span-5 space-y-10">
-                  <div className="bg-white rounded-[2rem] p-10 shadow-sm border border-slate-100">
-                    <h3 className="text-[10px] uppercase font-bold text-slate-400 tracking-[0.2em] mb-8">Compromisso de Hoje</h3>
+                  <div className="bg-black/20 rounded-[2rem] p-10 shadow-sm border border-white/5">
+                    <h3 className="text-[10px] uppercase font-bold text-slate-500 tracking-[0.2em] mb-8">Compromisso de Hoje</h3>
                     <RitualHoje onNavigate={setActiveTab} />
                   </div>
 
-                  <div className="bg-white rounded-[2rem] p-10 shadow-sm border border-slate-100">
-                    <h3 className="text-[10px] uppercase font-bold text-slate-400 tracking-[0.2em] mb-8">Atividades Recentes</h3>
+                  <div className="bg-black/20 rounded-[2rem] p-10 shadow-sm border border-white/5">
+                    <h3 className="text-[10px] uppercase font-bold text-slate-500 tracking-[0.2em] mb-8">Atividades Recentes</h3>
                     <div className="space-y-8">
                       {[
-                        { label: 'Leitura Concluída:', val: 'A Arte do Fluxo', icon: Brain, color: 'text-amber-600 bg-amber-50' },
-                        { label: 'Diário Atualizado:', val: 'Reflexão Matinal', icon: Sparkles, color: 'text-purple-600 bg-purple-50' }
+                        { label: 'Leitura Concluída:', val: 'A Arte do Fluxo', icon: Brain, color: 'text-amber-500 bg-amber-500/10' },
+                        { label: 'Diário Atualizado:', val: 'Reflexão Matinal', icon: Sparkles, color: 'text-purple-500 bg-purple-500/10' }
                       ].map((activity, i) => (
                         <div key={i} className="flex items-center gap-5 group/act">
                           <div className={cn("p-3 rounded-2xl transition-transform group-hover/act:scale-110", activity.color)}>
                             <activity.icon className="w-5 h-5" />
                           </div>
                           <div className="flex flex-col">
-                            <span className="text-xs font-bold text-slate-400 tracking-tight">{activity.label}</span>
-                            <span className="text-sm font-extrabold text-slate-800">{activity.val}</span>
+                            <span className="text-xs font-bold text-slate-500 tracking-tight">{activity.label}</span>
+                            <span className="text-sm font-extrabold text-slate-200">{activity.val}</span>
                           </div>
                         </div>
                       ))}
@@ -294,8 +297,8 @@ function DashboardContent() {
             <TabsContent value="ritual" className="mt-0 focus-visible:outline-none animate-in fade-in slide-in-from-bottom-4 duration-500">
               <div className="max-w-4xl mx-auto py-12">
                 <div className="mb-12">
-                  <h2 className="text-4xl font-extrabold text-slate-900 tracking-tight mb-2">O Rito</h2>
-                  <p className="text-slate-500 font-medium">Sua consciência operacional diária</p>
+                  <h2 className="text-4xl font-extrabold text-white tracking-tight mb-2">O Rito</h2>
+                  <p className="text-slate-400 font-medium">Sua consciência operacional diária</p>
                 </div>
                 <CheckDiario />
               </div>
@@ -310,8 +313,8 @@ function DashboardContent() {
             <TabsContent value="estrategia" className="mt-0 focus-visible:outline-none animate-in fade-in slide-in-from-bottom-4 duration-500">
               <div className="max-w-5xl mx-auto space-y-12 py-8">
                 <NumerosInteligencia />
-                <div className="pt-10 border-t border-slate-100">
-                  <h3 className="text-2xl font-extrabold text-slate-800 mb-8 border-l-4 border-primary pl-6">Conversa Estratégica</h3>
+                <div className="pt-10 border-t border-white/5">
+                  <h3 className="text-2xl font-extrabold text-white mb-8 border-l-4 border-primary pl-6">Conversa Estratégica</h3>
                   <AIChat />
                 </div>
               </div>
@@ -326,8 +329,8 @@ function DashboardContent() {
             </TabsContent>
           </Tabs>
 
-          <footer className="mt-24 pt-8 border-t border-slate-50 text-center">
-            <p className="text-[10px] uppercase font-bold text-slate-300 tracking-[0.3em]">
+          <footer className="mt-24 pt-8 border-t border-white/5 text-center">
+            <p className="text-[10px] uppercase font-bold text-slate-500 tracking-[0.3em]">
               © 2024 ANTIGRAVITY. Todos os direitos reservados.
             </p>
           </footer>
