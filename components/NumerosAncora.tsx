@@ -14,22 +14,22 @@ export default function NumerosAncora() {
         <div className="space-y-12 animate-fade-in">
             <div className="space-y-4">
                 <div className="flex flex-col gap-1.5 border-l-4 border-primary pl-6 py-1">
-                    <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 uppercase">Números Âncora</h2>
-                    <p className="text-slate-500 text-lg font-medium italic">"Poucos números. Clareza total. Sem ansiedade."</p>
+                    <h2 className="text-3xl font-extrabold tracking-tight text-white uppercase title-glow">Números Âncora</h2>
+                    <p className="text-slate-400 text-lg font-medium italic">"Poucos números. Clareza total. Sem ansiedade."</p>
                 </div>
-                <p className="text-sm text-slate-400 max-w-2xl pl-7">
+                <p className="text-sm text-slate-500 max-w-2xl pl-7">
                     Esta seção é o seu painel de controle operacional. Escolha até 12 métricas vitais que definem a saúde do seu negócio e de sua vida.
                 </p>
             </div>
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full space-y-8">
                 <div className="flex items-center justify-between">
-                    <TabsList>
-                        <TabsTrigger value="dashboard" className="gap-2">
+                    <TabsList className="bg-white/5 border border-white/5">
+                        <TabsTrigger value="dashboard" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-white">
                             <Activity className="w-4 h-4" />
                             Painel & Radar
                         </TabsTrigger>
-                        <TabsTrigger value="config" className="gap-2">
+                        <TabsTrigger value="config" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-white">
                             <Settings2 className="w-4 h-4" />
                             Configuração
                         </TabsTrigger>

@@ -127,27 +127,27 @@ export default function NumerosRegistro() {
                 {metrics.map(metric => {
                     const status = statuses[metric.id];
                     const borderColor = {
-                        green: 'border-border',
+                        green: 'border-white/5',
                         yellow: 'border-amber-500/20',
-                        red: 'border-destructive/20'
+                        red: 'border-rose-500/20'
                     }[status || 'green'];
 
                     const bgStatus = {
-                        green: 'bg-card',
+                        green: 'bg-black/20',
                         yellow: 'bg-amber-500/5',
-                        red: 'bg-destructive/5'
+                        red: 'bg-rose-500/5'
                     }[status || 'green'];
 
                     return (
-                        <Card key={metric.id} className={cn("transition-all shadow-sm relative overflow-hidden group hover:shadow-lg hover:-translate-y-1 rounded-[2.5rem]", borderColor, bgStatus)}>
+                        <Card key={metric.id} className={cn("transition-all shadow-sm relative overflow-hidden group hover:shadow-lg hover:-translate-y-1 rounded-[2.5rem] backdrop-blur-sm", borderColor, bgStatus)}>
                             <CardContent className="p-8">
                                 <div className="flex justify-between items-start mb-6">
                                     <div className="space-y-1">
-                                        <h3 className="font-extrabold text-xl text-foreground group-hover:text-primary transition-colors">{metric.name}</h3>
+                                        <h3 className="font-extrabold text-xl text-white group-hover:text-primary transition-colors">{metric.name}</h3>
                                         <div className="flex items-center gap-2">
-                                            <span className="text-[10px] uppercase font-extrabold text-muted-foreground tracking-wider font-sans">{metric.category}</span>
-                                            <span className="w-1 h-1 rounded-full bg-border" />
-                                            <span className="text-[10px] uppercase font-extrabold text-muted-foreground tracking-wider font-sans">{metric.unit}</span>
+                                            <span className="text-[10px] uppercase font-extrabold text-slate-400 tracking-wider font-sans">{metric.category}</span>
+                                            <span className="w-1 h-1 rounded-full bg-white/20" />
+                                            <span className="text-[10px] uppercase font-extrabold text-slate-400 tracking-wider font-sans">{metric.unit}</span>
                                         </div>
                                     </div>
                                     {entries[metric.id] !== '' && (
@@ -163,7 +163,7 @@ export default function NumerosRegistro() {
                                     <Input
                                         type="number"
                                         placeholder="0.00"
-                                        className="text-3xl font-extrabold h-20 bg-secondary border-border rounded-3xl px-6 focus-visible:ring-primary/20 focus-visible:border-primary/30 transition-all placeholder:text-muted-foreground/30 text-foreground"
+                                        className="text-3xl font-extrabold h-20 bg-black/40 border-white/5 rounded-3xl px-6 focus-visible:ring-primary/20 focus-visible:border-primary/30 transition-all placeholder:text-muted-foreground/20 text-white"
                                         value={entries[metric.id]}
                                         onChange={e => handleInputChange(metric, e.target.value)}
                                         onBlur={() => handleSave(metric.id)}
@@ -177,10 +177,10 @@ export default function NumerosRegistro() {
                                 </div>
 
                                 {status === 'red' && entries[metric.id] !== '' && (
-                                    <div className="mt-6 flex items-start gap-4 text-xs text-destructive bg-destructive/10 p-4 rounded-2xl border border-destructive/20 animate-in slide-in-from-top-2 duration-300">
-                                        <AlertTriangle className="w-5 h-5 shrink-0 text-destructive" />
+                                    <div className="mt-6 flex items-start gap-4 text-xs text-rose-400 bg-rose-500/10 p-4 rounded-2xl border border-rose-500/20 animate-in slide-in-from-top-2 duration-300">
+                                        <AlertTriangle className="w-5 h-5 shrink-0 text-rose-500" />
                                         <div className="space-y-1">
-                                            <p className="font-extrabold uppercase tracking-tight">Ação Necessária</p>
+                                            <p className="font-extrabold uppercase tracking-tight text-rose-500">Ação Necessária</p>
                                             <p className="font-medium opacity-80">{metric.playbook.actionIfRed || 'Ação imediata recomendada!'}</p>
                                         </div>
                                     </div>
@@ -191,7 +191,7 @@ export default function NumerosRegistro() {
                 })}
             </div>
             {metrics.length === 0 && (
-                <div className="text-center py-12 text-muted-foreground">
+                <div className="text-center py-12 text-slate-500">
                     Configure suas métricas na aba "Configuração" para começar.
                 </div>
             )}

@@ -6,9 +6,12 @@ import RitualHoje from '@/components/RitualHoje';
 
 interface DashboardViewProps {
     setActiveTab: (tab: string) => void;
+    user?: any;
 }
 
-export function DashboardView({ setActiveTab }: DashboardViewProps) {
+export function DashboardView({ setActiveTab, user }: DashboardViewProps) {
+    const userName = user?.user_metadata?.name || user?.email?.split('@')[0] || 'Viajante';
+
     return (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
             {/* Left Column: Personal Dashboard */}
@@ -16,7 +19,7 @@ export function DashboardView({ setActiveTab }: DashboardViewProps) {
                 <div className="bg-slate-50/30 rounded-[2rem] p-10 border border-slate-100 group hover:border-primary/20 transition-all duration-500">
                     <div className="mb-10 space-y-2">
                         <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-                            Olá, Sofia,
+                            Olá, {userName},
                         </h2>
                         <p className="text-lg text-slate-500 font-medium italic">
                             "Onde sua atenção flui, sua energia cresce."

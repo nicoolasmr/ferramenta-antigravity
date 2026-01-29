@@ -7,231 +7,262 @@ import { getTodayISO, getRelativeTime } from '@/lib/date-utils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { BadgeStatus } from '@/components/ui/badge-status';
-import { SegmentedControl, SegmentedControlList, SegmentedControlTrigger } from '@/components/ui/segmented-control';
-import { cn } from '@/lib/utils';
+import { Textarea } from '@/components/ui/textarea';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { createClient } from '@/lib/supabase/client';
+import { cn } from '@/lib/utils';
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 export default function CheckDiario() {
     const supabase = createClient();
+    const [isLoading, setIsLoading] = useState(true);
+    const [isSaving, setIsSaving] = useState(false);
+    const [lastSaved, setLastSaved] = useState<string | null>(null);
+
     const [check, setCheck] = useState<DailyCheck>({
         date: getTodayISO(),
-        operationStatus: 'green',
-        contentStatus: 'fulfilled',
+        operationStatus: 'smooth',
+        operationBlocker: '',
+        contentStatus: 'posted',
+        contentMissedReason: '',
         commercialAlignment: 'aligned',
-        hasBottleneck: false,
-        bottleneckDescription: '',
-        tomorrowTrend: 'same',
+        commercialGap: '',
+        tomorrowTrend: 'better',
+        dailyWin: '',
+        user_id: ''
     });
 
-    const [lastSaved, setLastSaved] = useState<string | null>(null);
-    const [isSaving, setIsSaving] = useState(false);
-
-    // Load today's check
     useEffect(() => {
-        const checks = storage.getDailyChecks();
-        const todayCheck = checks.find(c => c.date === getTodayISO());
-        if (todayCheck) {
-            setCheck(todayCheck);
-            setLastSaved(todayCheck.date);
-        }
+        loadDailyCheck();
     }, []);
+
+    const loadDailyCheck = async () => {
+        setIsLoading(true);
+        const today = getTodayISO();
+
+        // 1. Try local storage first
+        const localData = storage.getDailyCheck(today);
+        if (localData) {
+            setCheck(localData);
+            setLastSaved(localData.updatedAt || null);
+            setIsLoading(false);
+        }
+
+        // 2. Try Supabase (if authenticated) - simplified for now
+        // In a real scenario, we'd merge or fetch latest
+        setIsLoading(false);
+    };
 
     const handleSave = async () => {
         setIsSaving(true);
-        // Save local
-        storage.saveDailyCheck(check);
-        setLastSaved(new Date().toISOString());
+        const updatedCheck = {
+            ...check,
+            updatedAt: new Date().toISOString()
+        };
 
-        // Sync to Supabase if logged in
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
-            const { error } = await supabase
-                .from('daily_checks')
-                .upsert({
+        // 1. Save Local
+        storage.saveDailyCheck(updatedCheck);
+
+        // 2. Sync Supabase
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                await supabase.from('daily_checks').upsert({
                     user_id: session.user.id,
                     date: check.date,
-                    payload: check,
+                    payload: updatedCheck,
                     updated_at: new Date().toISOString()
-                }, { onConflict: 'user_id, date' })
-
-            if (error) console.error("Sync error:", error);
+                }, { onConflict: 'user_id, date' });
+            }
+        } catch (e) {
+            console.error("Sync error", e);
         }
 
-        setTimeout(() => {
-            setIsSaving(false);
-        }, 800);
+        setLastSaved(new Date().toISOString());
+        setTimeout(() => setIsSaving(false), 800);
     };
 
-    const isComplete = check.operationStatus && check.contentStatus && check.commercialAlignment && check.tomorrowTrend;
+    const updateField = (field: keyof DailyCheck, value: any) => {
+        setCheck(prev => ({ ...prev, [field]: value }));
+    };
+
+    const SectionHeader = ({ icon: Icon, title }: { icon: any, title: string }) => (
+        <div className="flex items-center gap-2 mb-4">
+            <div className="p-2 rounded-full bg-white/10 text-primary">
+                <Icon className="w-5 h-5" />
+            </div>
+            <h3 className="font-semibold text-lg text-white">{title}</h3>
+        </div>
+    );
+
+    // Helper for toggle items to ensure consistent styling
+    const ToggleItem = ({ value, label, colorClass }: { value: string, label: string, colorClass: string }) => (
+        <ToggleGroupItem
+            value={value}
+            className={cn(
+                "flex-1 border border-white/5 data-[state=on]:bg-white/10 transition-all hover:bg-white/5 text-slate-400 data-[state=on]:text-white",
+                check.operationStatus === value && colorClass // Apply specific color glow if selected? Or just keep simple white/primary
+            )}
+        >
+            {label}
+        </ToggleGroupItem>
+    );
+
+    if (isLoading) return <div className="p-12 text-center text-slate-400"><Loader2 className="w-8 h-8 animate-spin mx-auto mb-4" />Carregando...</div>;
 
     return (
-        <div className="space-y-6 max-w-2xl mx-auto animate-fade-in pb-24">
-            {/* Header Area */}
-            <div className="flex items-center justify-between px-2 mb-8">
-                <div className="flex items-center gap-3">
-                    <div className="w-1.5 h-8 bg-primary/40 rounded-full" />
-                    <div>
-                        <h2 className="text-xl font-bold text-foreground">Check Diário</h2>
-                        <p className="text-xs text-muted-foreground font-bold uppercase tracking-widest">Consciência Operacional</p>
-                    </div>
+        <div className="max-w-4xl mx-auto space-y-8 animate-fade-in p-1">
+
+            <div className="flex items-center justify-between mb-8">
+                <div>
+                    <h2 className="text-3xl font-bold text-white tracking-tight">Check-in Diário</h2>
+                    <p className="text-slate-400 mt-1">Registre o pulso do negócio hoje.</p>
                 </div>
-                <BadgeStatus
-                    variant={lastSaved ? 'success' : 'outline'}
-                    icon={lastSaved ? 'check' : 'clock'}
-                    className="bg-slate-50 border-slate-100 text-slate-500"
-                >
-                    {lastSaved ? 'Sincronizado' : 'Aguardando'}
-                </BadgeStatus>
+                <div className="flex flex-col items-end gap-2">
+                    <Button
+                        size="lg"
+                        onClick={handleSave}
+                        disabled={isSaving}
+                        className={cn(
+                            "group font-bold transition-all duration-500",
+                            isSaving ? "w-[140px] bg-emerald-500/20 text-emerald-500" : "w-[120px] bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-primary/20"
+                        )}
+                    >
+                        {isSaving ? (
+                            <>
+                                <CheckCircle2 className="w-5 h-5 mr-2 animate-bounce" />
+                                Salvo!
+                            </>
+                        ) : (
+                            <>
+                                <Save className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
+                                Salvar
+                            </>
+                        )}
+                    </Button>
+                    {lastSaved && <span className="text-xs text-slate-500 font-medium">Última sync: {getRelativeTime(lastSaved)}</span>}
+                </div>
             </div>
 
-            {/* Questions Stack */}
-            <div className="space-y-6">
-                {/* 1. Operation */}
-                <Card className="border-border bg-card shadow-sm ring-1 ring-border rounded-[2rem]">
-                    <CardHeader className="pb-4 px-8 pt-8">
-                        <CardTitle className="text-sm font-extrabold flex items-center gap-3 text-foreground">
-                            <TrendingUp className="w-4 h-4 text-primary/60" />
-                            Como está a operação hoje?
-                        </CardTitle>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Operação */}
+                <Card className="bg-black/20 border-white/5 backdrop-blur-sm shadow-xl relative overflow-hidden group hover:border-white/10 transition-colors">
+                    <div className="absolute top-0 left-0 w-1 h-full bg-blue-500/30" />
+                    <CardHeader>
+                        <SectionHeader icon={AlertCircle} title="Operação" />
                     </CardHeader>
-                    <CardContent className="px-8 pb-8">
-                        <SegmentedControl value={check.operationStatus} onValueChange={(v: string) => setCheck({ ...check, operationStatus: v as OperationStatus })}>
-                            <SegmentedControlList className="bg-secondary p-1 border border-border h-12 rounded-2xl">
-                                <SegmentedControlTrigger value="green" className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm">
-                                    Sob controle
-                                </SegmentedControlTrigger>
-                                <SegmentedControlTrigger value="yellow" className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-amber-600 data-[state=active]:shadow-sm">
-                                    Atenção
-                                </SegmentedControlTrigger>
-                                <SegmentedControlTrigger value="red" className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-rose-600 data-[state=active]:shadow-sm">
-                                    Travando
-                                </SegmentedControlTrigger>
-                            </SegmentedControlList>
-                        </SegmentedControl>
-                    </CardContent>
-                </Card>
+                    <CardContent className="space-y-4">
+                        <Label className="text-slate-300">Como fluiu a operação hoje?</Label>
+                        <ToggleGroup type="single" value={check.operationStatus} onValueChange={(v) => v && updateField('operationStatus', v)} className="bg-black/40 p-1 rounded-lg border border-white/5">
+                            <ToggleGroupItem value="smooth" className="flex-1 data-[state=on]:bg-emerald-500/20 data-[state=on]:text-emerald-400 text-slate-400 hover:text-slate-200 transaction-all">Liso 🟢</ToggleGroupItem>
+                            <ToggleGroupItem value="friction" className="flex-1 data-[state=on]:bg-amber-500/20 data-[state=on]:text-amber-400 text-slate-400 hover:text-slate-200 transaction-all">Atrito 🟡</ToggleGroupItem>
+                            <ToggleGroupItem value="chaos" className="flex-1 data-[state=on]:bg-rose-500/20 data-[state=on]:text-rose-400 text-slate-400 hover:text-slate-200 transaction-all">Caos 🔴</ToggleGroupItem>
+                        </ToggleGroup>
 
-                {/* 2. Content */}
-                <Card className="border-border bg-card shadow-sm ring-1 ring-border rounded-[2rem]">
-                    <CardHeader className="pb-4 px-8 pt-8">
-                        <CardTitle className="text-sm font-extrabold flex items-center gap-3 text-foreground">
-                            <CheckCircle2 className="w-4 h-4 text-primary/60" />
-                            O conteúdo cumpriu seu papel?
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="px-8 pb-8">
-                        <SegmentedControl value={check.contentStatus} onValueChange={(v: string) => setCheck({ ...check, contentStatus: v as ContentStatus })}>
-                            <SegmentedControlList className="bg-slate-50 p-1 border border-slate-100 h-12 rounded-2xl">
-                                <SegmentedControlTrigger value="fulfilled" className="rounded-xl data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm">Sim</SegmentedControlTrigger>
-                                <SegmentedControlTrigger value="at-risk" className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm">Em risco</SegmentedControlTrigger>
-                                <SegmentedControlTrigger value="not-priority" className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm">Não prioridade</SegmentedControlTrigger>
-                            </SegmentedControlList>
-                        </SegmentedControl>
-                    </CardContent>
-                </Card>
-
-                {/* 3. Commercial */}
-                <Card className="border-border bg-card shadow-sm ring-1 ring-border rounded-[2rem]">
-                    <CardHeader className="pb-4 px-8 pt-8">
-                        <CardTitle className="text-sm font-extrabold flex items-center gap-3 text-foreground">
-                            <DollarSign className="w-4 h-4 text-primary/60" />
-                            O comercial está alinhado?
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="px-8 pb-8">
-                        <SegmentedControl value={check.commercialAlignment} onValueChange={(v: string) => setCheck({ ...check, commercialAlignment: v as CommercialAlignment })}>
-                            <SegmentedControlList className="bg-secondary p-1 border border-border h-12 rounded-2xl">
-                                <SegmentedControlTrigger value="aligned" className="rounded-xl data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm">Alinhado</SegmentedControlTrigger>
-                                <SegmentedControlTrigger value="partial" className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm">Parcial</SegmentedControlTrigger>
-                                <SegmentedControlTrigger value="misaligned" className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm">Não</SegmentedControlTrigger>
-                            </SegmentedControlList>
-                        </SegmentedControl>
-                    </CardContent>
-                </Card>
-
-                {/* 4. Bottleneck */}
-                <Card className={cn("border-border bg-card shadow-sm ring-1 ring-border rounded-[2rem] transition-all", check.hasBottleneck ? "ring-amber-200" : "")}>
-                    <CardHeader className="py-6 px-8 flex flex-row items-center justify-between">
-                        <CardTitle className="text-sm font-extrabold flex items-center gap-3 text-foreground">
-                            <AlertCircle className="w-4 h-4 text-primary/60" />
-                            Existe gargalo visível?
-                        </CardTitle>
-                        <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => setCheck(prev => ({ ...prev, hasBottleneck: !prev.hasBottleneck }))}
-                            className={cn("h-8 px-4 text-[10px] font-extrabold uppercase tracking-widest rounded-xl border transition-all", check.hasBottleneck ? "bg-amber-50 text-amber-600 border-amber-100" : "bg-secondary text-muted-foreground border-border")}
-                        >
-                            {check.hasBottleneck ? "Remover" : "Adicionar"}
-                        </Button>
-                    </CardHeader>
-                    {check.hasBottleneck && (
-                        <CardContent className="animate-fade-in px-8 pb-8 pt-0">
-                            <div className="space-y-3">
-                                <textarea
-                                    value={check.bottleneckDescription || ''}
-                                    onChange={(e) => {
-                                        if (e.target.value.length <= 140) {
-                                            setCheck({ ...check, bottleneckDescription: e.target.value });
-                                        }
-                                    }}
-                                    placeholder="Descreva o que está travando o fluxo..."
-                                    className="flex w-full rounded-[1.5rem] border border-border bg-secondary/50 px-5 py-4 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 transition-all min-h-[120px] resize-none text-foreground placeholder-muted-foreground"
+                        {(check.operationStatus === 'friction' || check.operationStatus === 'chaos') && (
+                            <div className="animate-in slide-in-from-top-2">
+                                <Label className="text-rose-400 mb-2 block">O que travou?</Label>
+                                <Textarea
+                                    placeholder="Descreva o gargalo..."
+                                    className="bg-black/40 border-rose-500/30 focus:border-rose-500 text-white min-h-[80px]"
+                                    value={check.operationBlocker}
+                                    onChange={e => updateField('operationBlocker', e.target.value)}
                                 />
-                                <div className="text-right text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-                                    {(check.bottleneckDescription || '').length}/140
-                                </div>
                             </div>
-                        </CardContent>
-                    )}
-                </Card>
-
-                {/* 5. Trend */}
-                <Card className="border-border bg-card shadow-sm ring-1 ring-border rounded-[2rem]">
-                    <CardHeader className="pb-4 px-8 pt-8">
-                        <CardTitle className="text-sm font-extrabold flex items-center gap-3 text-foreground">
-                            <TrendingUp className="w-4 h-4 text-primary/60" />
-                            Tendência para amanhã
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="px-8 pb-8">
-                        <SegmentedControl value={check.tomorrowTrend} onValueChange={(v: string) => setCheck({ ...check, tomorrowTrend: v as TomorrowTrend })}>
-                            <SegmentedControlList className="bg-secondary p-1 border border-border h-12 rounded-2xl">
-                                <SegmentedControlTrigger value="better" className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm">Melhor ↗</SegmentedControlTrigger>
-                                <SegmentedControlTrigger value="same" className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-slate-600 data-[state=active]:shadow-sm">Igual →</SegmentedControlTrigger>
-                                <SegmentedControlTrigger value="worse" className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-rose-600 data-[state=active]:shadow-sm">Pior ↘</SegmentedControlTrigger>
-                            </SegmentedControlList>
-                        </SegmentedControl>
+                        )}
                     </CardContent>
                 </Card>
-            </div>
 
-            {/* Footer Action */}
-            <div className="pt-8">
-                <Button
-                    size="lg"
-                    className="w-full h-14 text-sm font-extrabold uppercase tracking-[0.2em] rounded-2xl shadow-lg bg-primary hover:bg-primary/90 text-white transition-all active:scale-[0.98]"
-                    onClick={handleSave}
-                    disabled={!isComplete || isSaving}
-                >
-                    {isSaving ? (
-                        <>
-                            <Loader2 className="w-5 h-5 mr-3 animate-spin" />
-                            Salvando
-                        </>
-                    ) : (
-                        <>
-                            <Save className="w-5 h-5 mr-3" />
-                            Finalizar Check Diário
-                        </>
-                    )}
-                </Button>
-                {lastSaved && (
-                    <p className="text-[10px] text-center text-muted-foreground font-bold uppercase tracking-widest mt-6">
-                        Atualizado {getRelativeTime(lastSaved)}
-                    </p>
-                )}
+                {/* Conteúdo */}
+                <Card className="bg-black/20 border-white/5 backdrop-blur-sm shadow-xl relative overflow-hidden group hover:border-white/10 transition-colors">
+                    <div className="absolute top-0 left-0 w-1 h-full bg-purple-500/30" />
+                    <CardHeader>
+                        <SectionHeader icon={AlertCircle} title="Conteúdo" />
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <Label className="text-slate-300">Postamos hoje?</Label>
+                        <ToggleGroup type="single" value={check.contentStatus} onValueChange={(v) => v && updateField('contentStatus', v)} className="bg-black/40 p-1 rounded-lg border border-white/5">
+                            <ToggleGroupItem value="posted" className="flex-1 data-[state=on]:bg-purple-500/20 data-[state=on]:text-purple-400 text-slate-400 hover:text-slate-200 transaction-all">Feito ✅</ToggleGroupItem>
+                            <ToggleGroupItem value="missed" className="flex-1 data-[state=on]:bg-rose-500/20 data-[state=on]:text-rose-400 text-slate-400 hover:text-slate-200 transaction-all">Falha ❌</ToggleGroupItem>
+                            <ToggleGroupItem value="rest_day" className="flex-1 data-[state=on]:bg-blue-500/20 data-[state=on]:text-blue-400 text-slate-400 hover:text-slate-200 transaction-all">Descanso 💤</ToggleGroupItem>
+                        </ToggleGroup>
+
+                        {check.contentStatus === 'missed' && (
+                            <div className="animate-in slide-in-from-top-2">
+                                <Label className="text-rose-400 mb-2 block">Por que não saiu?</Label>
+                                <Textarea
+                                    placeholder="Falta de tempo? Bloqueio criativo?"
+                                    className="bg-black/40 border-rose-500/30 focus:border-rose-500 text-white min-h-[80px]"
+                                    value={check.contentMissedReason}
+                                    onChange={e => updateField('contentMissedReason', e.target.value)}
+                                />
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+
+                {/* Comercial */}
+                <Card className="bg-black/20 border-white/5 backdrop-blur-sm shadow-xl relative overflow-hidden group hover:border-white/10 transition-colors">
+                    <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500/30" />
+                    <CardHeader>
+                        <SectionHeader icon={DollarSign} title="Comercial" />
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <Label className="text-slate-300">Batemos a meta do dia?</Label>
+                        <ToggleGroup type="single" value={check.commercialAlignment} onValueChange={(v) => v && updateField('commercialAlignment', v)} className="bg-black/40 p-1 rounded-lg border border-white/5">
+                            <ToggleGroupItem value="aligned" className="flex-1 data-[state=on]:bg-emerald-500/20 data-[state=on]:text-emerald-400 text-slate-400 hover:text-slate-200 transaction-all">Na meta 🎯</ToggleGroupItem>
+                            <ToggleGroupItem value="unsatisfactory" className="flex-1 data-[state=on]:bg-amber-500/20 data-[state=on]:text-amber-400 text-slate-400 hover:text-slate-200 transaction-all">Abaixo 📉</ToggleGroupItem>
+                            <ToggleGroupItem value="zero" className="flex-1 data-[state=on]:bg-rose-500/20 data-[state=on]:text-rose-400 text-slate-400 hover:text-slate-200 transaction-all">Zerado 💀</ToggleGroupItem>
+                        </ToggleGroup>
+
+                        {(check.commercialAlignment === 'unsatisfactory' || check.commercialAlignment === 'zero') && (
+                            <div className="animate-in slide-in-from-top-2">
+                                <Label className="text-amber-400 mb-2 block">Plano de recuperação:</Label>
+                                <Textarea
+                                    placeholder="O que faremos diferente amanhã?"
+                                    className="bg-black/40 border-amber-500/30 focus:border-amber-500 text-white min-h-[80px]"
+                                    value={check.commercialGap}
+                                    onChange={e => updateField('commercialGap', e.target.value)}
+                                />
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+
+                {/* Sentimento & Win */}
+                <div className="space-y-6">
+                    <Card className="bg-black/20 border-white/5 backdrop-blur-sm shadow-xl relative overflow-hidden group hover:border-white/10 transition-colors">
+                        <div className="absolute top-0 left-0 w-1 h-full bg-orange-500/30" />
+                        <CardHeader>
+                            <SectionHeader icon={TrendingUp} title="Amanhã" />
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <Label className="text-slate-300">Tendência para amanhã:</Label>
+                            <ToggleGroup type="single" value={check.tomorrowTrend} onValueChange={(v) => v && updateField('tomorrowTrend', v)} className="bg-black/40 p-1 rounded-lg border border-white/5">
+                                <ToggleGroupItem value="better" className="flex-1 data-[state=on]:bg-emerald-500/20 data-[state=on]:text-emerald-400 text-slate-400 hover:text-slate-200 transaction-all">Melhor 🚀</ToggleGroupItem>
+                                <ToggleGroupItem value="same" className="flex-1 data-[state=on]:bg-blue-500/20 data-[state=on]:text-blue-400 text-slate-400 hover:text-slate-200 transaction-all">Igual ⏸️</ToggleGroupItem>
+                                <ToggleGroupItem value="worse" className="flex-1 data-[state=on]:bg-rose-500/20 data-[state=on]:text-rose-400 text-slate-400 hover:text-slate-200 transaction-all">Pior ⛈️</ToggleGroupItem>
+                            </ToggleGroup>
+                        </CardContent>
+                    </Card>
+
+                    <Card className="bg-gradient-to-br from-primary/10 to-transparent border-primary/20 backdrop-blur-md shadow-2xl relative overflow-hidden">
+                        <CardHeader>
+                            <h3 className="text-lg font-bold text-primary flex items-center gap-2">
+                                <span className="text-2xl">🏆</span> Daily Win
+                            </h3>
+                        </CardHeader>
+                        <CardContent>
+                            <Label className="text-slate-300 mb-2 block">Qual foi a maior vitória de hoje?</Label>
+                            <Textarea
+                                placeholder="Fechei aquele contrato, resolvi aquele bug..."
+                                className="bg-black/40 border-primary/20 text-white min-h-[100px] focus-visible:ring-primary/50"
+                                value={check.dailyWin}
+                                onChange={e => updateField('dailyWin', e.target.value)}
+                            />
+                        </CardContent>
+                    </Card>
+                </div>
             </div>
         </div>
     );
