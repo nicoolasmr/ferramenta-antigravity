@@ -81,16 +81,19 @@ export default function AlertasHumanos() {
     return (
         <div className="space-y-6 max-w-2xl mx-auto animate-fade-in">
             {/* Header Card */}
-            <Card className="border-l-4 border-l-primary bg-secondary/30">
-                <CardHeader>
+            <Card className="border-white/5 bg-card/40 backdrop-blur-xl">
+                <CardHeader className="py-4">
                     <div className="flex items-center justify-between">
-                        <div>
-                            <CardTitle className="text-xl">Alertas Humanos</CardTitle>
-                            <CardDescription>Sinais de cuidado, não de cobrança.</CardDescription>
+                        <div className="flex items-center gap-3">
+                            <div className="w-1 h-8 bg-primary rounded-full" />
+                            <div>
+                                <CardTitle className="text-xl font-bold text-white">Alertas Humanos</CardTitle>
+                                <CardDescription className="text-xs text-slate-500 font-medium">Sinais de cuidado, não de cobrança.</CardDescription>
+                            </div>
                         </div>
-                        <Badge variant="outline" className="flex gap-1">
-                            <Shield className="w-3 h-3" />
-                            {alerts.length} Ativos
+                        <Badge variant="outline" className="flex gap-1.5 items-center bg-white/5 border-white/10 rounded-full px-3 py-1">
+                            <Shield className="w-3 h-3 text-primary" />
+                            <span className="text-[10px] font-bold uppercase tracking-wider">{alerts.length} Ativos</span>
                         </Badge>
                     </div>
                 </CardHeader>
@@ -98,17 +101,21 @@ export default function AlertasHumanos() {
 
             {/* Alerts List */}
             {loading ? (
-                <div className="text-center py-12 text-muted-foreground">Carregando...</div>
+                <div className="flex flex-col items-center justify-center py-12 space-y-4">
+                    <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                    <span className="text-xs text-slate-500 font-medium lowercase italic tracking-wide">analisando padrões...</span>
+                </div>
             ) : alerts.length === 0 ? (
-                <Card className="bg-emerald-500/5 border-emerald-500/20 border-dashed">
-                    <CardContent className="flex flex-col items-center justify-center py-12 text-center space-y-4">
-                        <div className="p-4 bg-emerald-500/10 rounded-full">
-                            <Shield className="w-8 h-8 text-emerald-500" />
+                <Card className="bg-emerald-500/5 border-emerald-500/10 border-dashed rounded-2xl">
+                    <CardContent className="flex flex-col items-center justify-center py-16 text-center space-y-6">
+                        <div className="p-5 bg-emerald-500/10 rounded-full border border-emerald-500/20 relative">
+                            <Shield className="w-10 h-10 text-emerald-500" />
+                            <div className="absolute inset-0 bg-emerald-500/20 blur-2xl rounded-full -z-10" />
                         </div>
-                        <div className="space-y-1">
-                            <h3 className="text-lg font-medium text-emerald-500">Tudo sob controle</h3>
-                            <p className="text-muted-foreground max-w-xs mx-auto">
-                                Nenhum padrão de risco detectado. Você está sustentando bem a operação.
+                        <div className="space-y-2">
+                            <h3 className="text-xl font-bold text-emerald-500 tracking-tight">Tudo sob controle</h3>
+                            <p className="text-slate-400 max-w-xs mx-auto text-sm leading-relaxed">
+                                Nenhum padrão de risco detectado. Você está sustentando bem a operação hoje.
                             </p>
                         </div>
                     </CardContent>
@@ -116,17 +123,19 @@ export default function AlertasHumanos() {
             ) : (
                 <div className="space-y-4">
                     {alerts.map((alert) => (
-                        <Card key={alert.id} className={cn("transition-all relative overflow-hidden", getStyles(alert.type))}>
-                            <CardContent className="p-6 flex gap-4">
+                        <Card key={alert.id} className={cn("transition-all relative overflow-hidden group border-white/5 shadow-2xl", getStyles(alert.type))}>
+                            <CardContent className="p-6 flex gap-5">
                                 <div className="mt-1 flex-shrink-0">
-                                    {getIcon(alert.type)}
+                                    <div className="p-2.5 rounded-xl bg-white/5 border border-white/10">
+                                        {getIcon(alert.type)}
+                                    </div>
                                 </div>
-                                <div className="flex-1 space-y-1">
-                                    <h3 className="font-semibold text-foreground leading-none mb-2">
+                                <div className="flex-1 space-y-2">
+                                    <h3 className="font-bold text-white leading-tight tracking-tight text-lg">
                                         {alert.message}
                                     </h3>
                                     {alert.suggestion && (
-                                        <p className="text-sm text-muted-foreground leading-relaxed">
+                                        <p className="text-sm text-slate-400 leading-relaxed font-medium">
                                             {alert.suggestion}
                                         </p>
                                     )}
@@ -134,12 +143,13 @@ export default function AlertasHumanos() {
                                 <Button
                                     size="icon"
                                     variant="ghost"
-                                    className="flex-shrink-0 -mr-2 -mt-2 hover:bg-background/20 hover:text-foreground"
+                                    className="flex-shrink-0 -mr-2 -mt-2 h-9 w-9 rounded-full hover:bg-white/10 text-slate-500 hover:text-white transition-all opacity-40 group-hover:opacity-100"
                                     onClick={() => handleDismiss(alert.id)}
                                 >
                                     <X className="w-4 h-4" />
                                 </Button>
                             </CardContent>
+                            <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/5 to-transparent" />
                         </Card>
                     ))}
                 </div>

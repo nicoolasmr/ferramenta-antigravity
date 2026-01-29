@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Save, Copy, CheckCircle2, History, Award, Zap, TrendingUp, DollarSign } from 'lucide-react';
+import { Save, Copy, CheckCircle2, History, Award, Zap, TrendingUp, DollarSign, Loader2 } from 'lucide-react';
 import { storage, ImpactLog } from '@/lib/storage';
 import { getTodayISO, formatDate } from '@/lib/date-utils';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -120,22 +120,25 @@ ${log.reflection || '(sem reflexão)'}
     return (
         <div className="space-y-6 max-w-2xl mx-auto animate-fade-in">
             {/* Header Card */}
-            <Card className="border-l-4 border-l-primary bg-secondary/30">
-                <CardHeader>
+            <Card className="border-white/5 bg-card/40 backdrop-blur-xl">
+                <CardHeader className="py-4">
                     <div className="flex items-center justify-between">
-                        <div>
-                            <CardTitle className="text-xl">Impacto</CardTitle>
-                            <CardDescription>Prova de valor diária</CardDescription>
+                        <div className="flex items-center gap-3">
+                            <div className="w-1 h-8 bg-primary rounded-full" />
+                            <div>
+                                <CardTitle className="text-xl font-bold text-white">Impacto</CardTitle>
+                                <CardDescription className="text-xs text-slate-500 font-medium">Prova de valor diária</CardDescription>
+                            </div>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-3">
                             {totalImpacts > 0 && (
-                                <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
-                                    <Award className="w-3 h-3 mr-1" />
-                                    {totalImpacts}
+                                <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 rounded-full px-3">
+                                    <Award className="w-3 h-3 mr-1.5" />
+                                    {totalImpacts} impactos
                                 </Badge>
                             )}
-                            <Button variant="ghost" size="icon" onClick={() => setShowHistory(!showHistory)}>
-                                <History className="w-4 h-4" />
+                            <Button variant="ghost" size="icon" onClick={() => setShowHistory(!showHistory)} className="rounded-full hover:bg-white/5 border border-white/5">
+                                <History className="w-4 h-4 text-slate-400" />
                             </Button>
                         </div>
                     </div>
@@ -162,8 +165,8 @@ ${log.reflection || '(sem reflexão)'}
                                 className={cn(
                                     "cursor-pointer p-3 rounded-xl border text-sm font-medium transition-all select-none flex items-center justify-between",
                                     log.operation.includes(item)
-                                        ? "bg-primary/10 border-primary text-primary shadow-sm"
-                                        : "bg-background border-border hover:bg-secondary/50 text-muted-foreground"
+                                        ? "bg-primary/20 border-primary/40 text-primary shadow-lg shadow-primary/10"
+                                        : "bg-black/20 border-white/5 hover:bg-white/5 text-slate-400"
                                 )}
                             >
                                 {item}
@@ -191,8 +194,8 @@ ${log.reflection || '(sem reflexão)'}
                                 className={cn(
                                     "cursor-pointer p-3 rounded-xl border text-sm font-medium transition-all select-none flex items-center justify-between",
                                     log.content.includes(item)
-                                        ? "bg-primary/10 border-primary text-primary shadow-sm"
-                                        : "bg-background border-border hover:bg-secondary/50 text-muted-foreground"
+                                        ? "bg-primary/20 border-primary/40 text-primary shadow-lg shadow-primary/10"
+                                        : "bg-black/20 border-white/5 hover:bg-white/5 text-slate-400"
                                 )}
                             >
                                 {item}
@@ -220,8 +223,8 @@ ${log.reflection || '(sem reflexão)'}
                                 className={cn(
                                     "cursor-pointer p-3 rounded-xl border text-sm font-medium transition-all select-none flex items-center justify-between",
                                     log.commercial.includes(item)
-                                        ? "bg-primary/10 border-primary text-primary shadow-sm"
-                                        : "bg-background border-border hover:bg-secondary/50 text-muted-foreground"
+                                        ? "bg-primary/20 border-primary/40 text-primary shadow-lg shadow-primary/10"
+                                        : "bg-black/20 border-white/5 hover:bg-white/5 text-slate-400"
                                 )}
                             >
                                 {item}
@@ -242,29 +245,29 @@ ${log.reflection || '(sem reflexão)'}
                             value={log.reflection}
                             onChange={(e) => setLog({ ...log, reflection: e.target.value })}
                             placeholder="Hoje eu evitei que..."
-                            className="flex w-full rounded-md border border-input bg-background/50 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 min-h-[100px]"
+                            className="flex w-full rounded-xl border border-white/5 bg-black/20 px-4 py-3 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50 min-h-[120px] transition-all"
                         />
                     </CardContent>
                 </Card>
             </div>
 
             {/* Footer Actions */}
-            <div className="sticky bottom-4 z-10 pt-4 flex gap-3">
+            <div className="pt-4 flex gap-3">
                 <Button
                     size="lg"
-                    className="flex-1 shadow-2xl shadow-primary/30"
+                    className="flex-1 h-14 rounded-xl text-sm font-bold bg-primary hover:bg-primary/90 shadow-[0_10px_30px_-10px_rgba(99,102,241,0.5)] transition-all"
                     onClick={handleSave}
                     disabled={isSaving}
                 >
                     {isSaving ? (
                         <>
-                            <CheckCircle2 className="w-5 h-5 mr-2 animate-pulse" />
+                            <Loader2 className="w-5 h-5 mr-3 animate-spin" />
                             Salvando
                         </>
                     ) : (
                         <>
-                            <Save className="w-5 h-5 mr-2" />
-                            Salvar
+                            <Save className="w-5 h-5 mr-3" />
+                            Salvar Registro
                         </>
                     )}
                 </Button>
@@ -272,9 +275,10 @@ ${log.reflection || '(sem reflexão)'}
                 <Button
                     size="lg"
                     variant="secondary"
+                    className="h-14 w-14 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 text-slate-400"
                     onClick={handleCopy}
                 >
-                    {copied ? <CheckCircle2 className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+                    {copied ? <CheckCircle2 className="w-5 h-5 text-emerald-500" /> : <Copy className="w-5 h-5" />}
                 </Button>
             </div>
 

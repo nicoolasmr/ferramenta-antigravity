@@ -49,15 +49,21 @@ export default function RadarVermelhos() {
             storage.saveMetricEntry(updatedEntry);
 
             // Sync
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session) {
-                await supabase.from('metric_entries').upsert({
-                    user_id: session.user.id,
-                    metric_id: metricId,
-                    date: todayISO,
-                    payload: updatedEntry,
-                    updated_at: new Date().toISOString()
-                }, { onConflict: 'user_id, metric_id, date' });
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (session) {
+                    const { error } = await supabase.from('metric_entries').upsert({
+                        user_id: session.user.id,
+                        metric_id: metricId,
+                        date: todayISO,
+                        payload: updatedEntry,
+                        updated_at: new Date().toISOString()
+                    }, { onConflict: 'user_id, metric_id, date' });
+
+                    if (error) console.warn("Supabase sync (metric_entries) ignored:", error.message);
+                }
+            } catch (e) {
+                console.warn("Supabase unavailable for metric_entries");
             }
 
             checkReds(); // Refresh immediately
@@ -66,47 +72,47 @@ export default function RadarVermelhos() {
 
     if (allGood) {
         return (
-            <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4 flex items-center gap-3 animate-fade-in mb-6">
-                <div className="p-2 bg-emerald-500/20 rounded-full">
+            <div className="bg-emerald-500/5 border border-emerald-500/10 rounded-xl p-5 flex items-center gap-4 animate-fade-in mb-6 backdrop-blur-sm">
+                <div className="p-2.5 bg-emerald-500/10 rounded-full border border-emerald-500/20">
                     <CheckCircle2 className="w-5 h-5 text-emerald-500" />
                 </div>
                 <div>
-                    <h3 className="font-medium text-emerald-500">Radar Limpo</h3>
-                    <p className="text-sm text-emerald-500/80">Nenhuma métrica crítica detectada hoje. Continue assim.</p>
+                    <h3 className="font-bold text-emerald-500 text-sm italic tracking-wide lowercase">Radar Limpo</h3>
+                    <p className="text-xs text-muted-foreground font-medium">Nenhuma métrica crítica detectada hoje. Continue assim.</p>
                 </div>
             </div>
         );
     }
 
-    if (redEntries.length === 0) return null; // Should be handled by allGood, but safety check
+    if (redEntries.length === 0) return null;
 
     return (
-        <Card className="border-red-500/50 bg-red-500/5 mb-8 animate-slide-in shadow-[0_0_30px_-5px_rgba(239,68,68,0.3)]">
-            <CardHeader className="pb-2">
-                <CardTitle className="text-red-500 flex items-center gap-2 text-lg">
+        <Card className="border-red-500/10 bg-red-950/10 mb-8 animate-slide-in shadow-[0_10px_40px_-15px_rgba(239,68,68,0.2)]">
+            <CardHeader className="pb-3 border-b border-white/5">
+                <CardTitle className="text-red-500 flex items-center gap-2 text-lg font-bold tracking-tight">
                     <AlertTriangle className="w-5 h-5" />
                     Radar de Vermelhos ({redEntries.length})
                 </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-4 pt-4">
                 {redEntries.map(({ metric, entry }) => (
-                    <div key={metric.id} className="bg-background/80 backdrop-blur p-4 rounded-lg border border-red-500/20 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <div className="space-y-1">
-                            <div className="flex items-center gap-2">
-                                <span className="font-bold">{metric.name}</span>
-                                <span className="text-red-500 font-mono font-bold bg-red-100 dark:bg-red-900/30 px-2 rounded">
+                    <div key={metric.id} className="bg-card/40 backdrop-blur-xl p-5 rounded-xl border border-white/5 flex flex-col md:flex-row md:items-center justify-between gap-5 transition-all hover:bg-card/60">
+                        <div className="space-y-2">
+                            <div className="flex items-center gap-3">
+                                <span className="font-bold text-lg text-white">{metric.name}</span>
+                                <span className="text-red-500 font-mono font-bold bg-red-500/10 px-3 py-1 rounded-full text-sm border border-red-500/20">
                                     {entry.value} {metric.unit}
                                 </span>
                             </div>
-                            <p className="text-sm text-muted-foreground">
-                                <span className="font-semibold text-red-500">PLAYBOOK: </span>
-                                {metric.playbook.actionIfRed || "Nenhuma ação definida no playbook."}
+                            <p className="text-sm text-slate-400 leading-relaxed">
+                                <span className="text-[10px] uppercase font-bold text-red-500 tracking-widest mr-2">Playbook:</span>
+                                {metric.playbook.actionIfRed || "Nenhuma ação definida."}
                             </p>
                         </div>
                         <Button
                             variant="destructive"
                             size="sm"
-                            className="whitespace-nowrap"
+                            className="bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 rounded-lg font-bold transition-all"
                             onClick={() => markAsAddressed(metric.id)}
                         >
                             Marcar como Endereçado

@@ -38,43 +38,41 @@
 
 @layer base {
   :root {
-    /* Slate 950 - Deep Background */
-    --background: hsl(222.2 84% 4.9%);
+    /* Antigravity Dark Theme - Deep Space */
+    --background: hsl(265 45% 4%);
     --foreground: hsl(210 40% 98%);
 
-    /* Cards - Slightly lighter than bg */
-    --card: hsl(222.2 84% 6.5%);
+    /* Cards - Distinct from background */
+    --card: hsl(265 35% 8%);
     --card-foreground: hsl(210 40% 98%);
 
-    --popover: hsl(222.2 84% 6.5%);
+    --popover: hsl(265 35% 8%);
     --popover-foreground: hsl(210 40% 98%);
 
-    /* Indigo 600 - Primary */
-    --primary: hsl(243 75% 59%);
-    --primary-foreground: hsl(210 40% 98%);
+    /* Primary - Electric Purple */
+    --primary: hsl(263 70% 65%);
+    --primary-foreground: hsl(0 0% 100%);
 
-    /* Slate 800/900 mix - Secondary */
-    --secondary: hsl(217.2 32.6% 12%);
+    /* Secondary - Muted Purple/Grey */
+    --secondary: hsl(260 25% 12%);
     --secondary-foreground: hsl(210 40% 98%);
 
-    /* Muted text/bg */
-    --muted: hsl(217.2 32.6% 12%);
-    --muted-foreground: hsl(215 20.2% 65.1%);
+    /* Muted */
+    --muted: hsl(260 25% 12%);
+    --muted-foreground: hsl(260 10% 65%);
 
-    /* Accent for hovers */
-    --accent: hsl(217.2 32.6% 12%);
+    /* Accent */
+    --accent: hsl(263 70% 65% / 0.15);
     --accent-foreground: hsl(210 40% 98%);
 
-    --destructive: hsl(0 62.8% 30.6%);
+    --destructive: hsl(0 62% 30%);
     --destructive-foreground: hsl(210 40% 98%);
 
-    /* Borders - Subtle White/10% */
-    --border: hsl(217.2 32.6% 17.5% / 0.5);
-    --input: hsl(217.2 32.6% 17.5% / 0.5);
+    --border: hsl(260 20% 18%);
+    --input: hsl(260 20% 18%);
+    --ring: hsl(263 70% 60%);
 
-    --ring: hsl(243 75% 59%);
-
-    --radius: 0.75rem;
+    --radius: 1.5rem;
   }
 }
 
@@ -84,17 +82,26 @@
   }
 
   body {
-    @apply bg-background text-foreground antialiased selection:bg-indigo-500/30 selection:text-indigo-200;
+    @apply bg-background text-foreground antialiased selection:bg-purple-200 selection:text-purple-900;
   }
 }
 
-/* Glassmorphism Utilities */
-@utility glass {
-  @apply bg-slate-950/40 backdrop-blur-xl border border-white/5 shadow-2xl;
+/* Main Sanctuary Sheet Utility */
+@utility sheet {
+  background-color: var(--card);
+  border-radius: 2.5rem;
+  box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--border);
+  /* border-slate-100 */
+}
+
+/* Header Glow Utility */
+@utility title-glow {
+  text-shadow: 0 0 40px rgba(168, 85, 247, 0.4), 0 0 80px rgba(168, 85, 247, 0.2);
 }
 
 @utility container-wide {
-  @apply max-w-5xl mx-auto px-6;
+  @apply max-w-6xl mx-auto px-10;
 }
 
 @utility text-balance {

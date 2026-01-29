@@ -18,45 +18,40 @@ interface RitualCardProps {
     onAction: () => void;
 }
 
-function RitualCard({ title, description, icon, status, actionLabel, onAction }: RitualCardProps) {
+function RitualItem({ title, description, icon, status, actionLabel, onAction }: RitualCardProps) {
     return (
-        <Card className={cn(
-            "border-border/50 transition-all hover:border-primary/30 group",
-            status === 'done' ? "bg-emerald-500/5 opacity-80" : "bg-secondary/20 shadow-lg"
+        <div className={cn(
+            "flex items-center justify-between p-6 rounded-3xl border transition-all duration-300",
+            status === 'done'
+                ? "bg-emerald-500/10 border-emerald-500/20 opacity-80"
+                : "bg-card border-border hover:border-primary/20 hover:shadow-md"
         )}>
-            <CardContent className="p-4 flex flex-col h-full justify-between gap-4">
-                <div className="flex items-start justify-between">
-                    <div className={cn(
-                        "p-2 rounded-lg",
-                        status === 'done' ? "bg-emerald-500/20" : "bg-primary/20"
-                    )}>
-                        {icon}
-                    </div>
-                    {status === 'done' ? (
-                        <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-                    ) : status === 'attention' ? (
-                        <AlertTriangle className="w-5 h-5 text-amber-500 animate-pulse" />
-                    ) : (
-                        <Circle className="w-5 h-5 text-muted-foreground/30" />
-                    )}
+            <div className="flex items-center gap-5">
+                <div className={cn(
+                    "p-3 rounded-2xl transition-colors",
+                    status === 'done' ? "bg-emerald-500/20 text-emerald-500" : "bg-secondary text-muted-foreground"
+                )}>
+                    {icon}
                 </div>
-
                 <div>
-                    <h3 className="font-bold text-lg">{title}</h3>
-                    <p className="text-sm text-muted-foreground">{description}</p>
+                    <h4 className="font-extrabold text-foreground tracking-tight">{title}</h4>
+                    <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">{description}</p>
                 </div>
+            </div>
 
-                <Button
-                    variant={status === 'done' ? "ghost" : "default"}
-                    size="sm"
-                    className="w-full justify-between group"
-                    onClick={onAction}
-                >
-                    {actionLabel}
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Button>
-            </CardContent>
-        </Card>
+            <Button
+                variant="ghost"
+                size="sm"
+                className={cn(
+                    "rounded-xl text-[10px] font-extrabold uppercase tracking-widest gap-2",
+                    status === 'done' ? "text-emerald-600 hover:bg-emerald-50" : "text-primary hover:bg-primary/5"
+                )}
+                onClick={onAction}
+            >
+                {status === 'done' ? 'Concluído' : actionLabel}
+                <ArrowRight className="w-3 h-3" />
+            </Button>
+        </div>
     );
 }
 
@@ -68,22 +63,17 @@ export default function RitualHoje({ onNavigate }: { onNavigate: (tab: string) =
 
     useEffect(() => {
         const today = getTodayISO();
-
-        // Morning Status: Any metric entry today?
         const entries = storage.getEntriesForDate(today);
         setMorningDone(entries.length > 0);
 
-        // Afternoon Status: Any red alerts in radar?
         const metrics = storage.getAnchorMetrics();
         const entriesAll = storage.getMetricEntries();
         const reds = getRadarDeVermelhos(today, metrics, entriesAll);
         setAfternoonStatus(reds.length > 0 ? 'attention' : 'done');
 
-        // Evening Status: Daily check done today?
         const checks = storage.getDailyChecks();
         setEveningDone(checks.some(c => c.date === today));
 
-        // Streak logic (last 7 days)
         let count = 0;
         for (let i = 0; i < 7; i++) {
             const date = new Date();
@@ -95,53 +85,46 @@ export default function RitualHoje({ onNavigate }: { onNavigate: (tab: string) =
     }, []);
 
     return (
-        <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h2 className="text-2xl font-bold tracking-tight">Ritual de Hoje</h2>
-                    <p className="text-muted-foreground text-sm italic">"Constância alimenta a alma."</p>
-                </div>
-                <div className="flex flex-col items-end">
-                    <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">Dias de Clareza</span>
-                    <div className="flex gap-1 mt-1">
-                        {[...Array(7)].map((_, i) => (
-                            <div
-                                key={i}
-                                className={cn(
-                                    "w-3 h-1.5 rounded-full",
-                                    i < streak ? "bg-primary" : "bg-muted"
-                                )}
-                            />
-                        ))}
-                    </div>
-                </div>
-            </div>
+        <div className="space-y-4">
+            <RitualItem
+                title="Manhã"
+                description="Registro de Métricas"
+                icon={<Sun className="w-5 h-5" />}
+                status={morningDone ? 'done' : 'pending'}
+                actionLabel="Registrar"
+                onAction={() => onNavigate('numeros')}
+            />
+            <RitualItem
+                title="Meio do dia"
+                description="Check de Radar"
+                icon={<Ghost className={cn("w-5 h-5", afternoonStatus === 'attention' ? 'text-amber-500' : 'text-muted-foreground')} />}
+                status={afternoonStatus}
+                actionLabel="Ver Radar"
+                onAction={() => onNavigate('numeros')}
+            />
+            <RitualItem
+                title="O Rito"
+                description="Consciência Diária"
+                icon={<Moon className="w-5 h-5" />}
+                status={eveningDone ? 'done' : 'pending'}
+                actionLabel="Analisar"
+                onAction={() => onNavigate('ritual')}
+            />
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <RitualCard
-                    title="Manhã"
-                    description="Atualize seus Números Âncora"
-                    icon={<Sun className="w-5 h-5 text-primary" />}
-                    status={morningDone ? 'done' : 'pending'}
-                    actionLabel={morningDone ? "Ver Números" : "Registrar"}
-                    onAction={() => onNavigate('numeros')}
-                />
-                <RitualCard
-                    title="Meio do dia"
-                    description="Veja o Radar de Vermelhos"
-                    icon={<Ghost className="w-5 h-5 text-amber-500" />}
-                    status={afternoonStatus}
-                    actionLabel="Ver Radar"
-                    onAction={() => onNavigate('numeros')}
-                />
-                <RitualCard
-                    title="Fim do dia"
-                    description="Faça o Check Diário"
-                    icon={<Moon className="w-5 h-5 text-blue-500" />}
-                    status={eveningDone ? 'done' : 'pending'}
-                    actionLabel={eveningDone ? "Ver Check" : "Fazer Agora"}
-                    onAction={() => onNavigate('check')}
-                />
+            {/* Minimal Streak Indicator */}
+            <div className="flex items-center gap-3 px-2 pt-4">
+                <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-[0.2em]">Fluxo</span>
+                <div className="flex gap-1.5">
+                    {[...Array(7)].map((_, i) => (
+                        <div
+                            key={i}
+                            className={cn(
+                                "w-1.5 h-1.5 rounded-full",
+                                i < streak ? "bg-primary shadow-sm" : "bg-muted"
+                            )}
+                        />
+                    ))}
+                </div>
             </div>
         </div>
     );

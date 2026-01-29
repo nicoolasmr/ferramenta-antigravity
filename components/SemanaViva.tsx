@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Save, Plus, Trash2, AlertCircle, Target, Layers, ShoppingBag, Shield } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Save, Plus, Trash2, AlertCircle, Target, Layers, ShoppingBag, Shield, RefreshCw } from 'lucide-react';
 import { storage, WeeklyPlan, Project, ContentPurpose, ProjectDependency } from '@/lib/storage';
 import { getCurrentWeekStart, getNextWeekStart, getPreviousWeekStart, formatWeekRange } from '@/lib/date-utils';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -117,22 +117,25 @@ export default function SemanaViva() {
     return (
         <div className="space-y-6 max-w-2xl mx-auto animate-fade-in">
             {/* Header Card */}
-            <Card className="border-l-4 border-l-primary bg-secondary/30">
-                <CardHeader>
+            <Card className="border-white/5 bg-card/40 backdrop-blur-xl">
+                <CardHeader className="py-4">
                     <div className="flex items-center justify-between">
-                        <div>
-                            <CardTitle className="text-xl">Semana Viva</CardTitle>
-                            <CardDescription>Direção da semana</CardDescription>
+                        <div className="flex items-center gap-3">
+                            <div className="w-1 h-8 bg-primary rounded-full" />
+                            <div>
+                                <CardTitle className="text-xl font-bold text-white">Semana Viva</CardTitle>
+                                <CardDescription className="text-xs text-slate-500 font-medium">Direção da semana</CardDescription>
+                            </div>
                         </div>
-                        <div className="flex items-center gap-2 bg-background/50 rounded-lg p-1 border">
-                            <Button variant="ghost" size="icon" onClick={() => navigateWeek('prev')} className="h-7 w-7">
-                                <ChevronLeft className="w-4 h-4" />
+                        <div className="flex items-center gap-3 bg-black/40 rounded-full p-1 border border-white/5">
+                            <Button variant="ghost" size="icon" onClick={() => navigateWeek('prev')} className="h-8 w-8 rounded-full hover:bg-white/10">
+                                <ChevronLeft className="w-4 h-4 text-slate-400" />
                             </Button>
-                            <span className="text-xs font-medium px-2 min-w-[100px] text-center">
+                            <span className="text-[10px] font-bold uppercase tracking-widest px-1 min-w-[120px] text-center text-muted-foreground">
                                 {formatWeekRange(currentWeekStart)}
                             </span>
-                            <Button variant="ghost" size="icon" onClick={() => navigateWeek('next')} className="h-7 w-7">
-                                <ChevronRight className="w-4 h-4" />
+                            <Button variant="ghost" size="icon" onClick={() => navigateWeek('next')} className="h-8 w-8 rounded-full hover:bg-white/10">
+                                <ChevronRight className="w-4 h-4 text-muted-foreground" />
                             </Button>
                         </div>
                     </div>
@@ -152,22 +155,22 @@ export default function SemanaViva() {
             )}
 
             {/* Center of Week */}
-            <Card>
-                <CardHeader>
-                    <CardTitle className="text-base font-medium flex items-center gap-2">
-                        <div className="p-1.5 bg-primary/10 rounded-lg text-primary">
+            <Card className="border-white/5 bg-card/40 blur-none">
+                <CardHeader className="pb-4">
+                    <CardTitle className="text-base font-bold flex items-center gap-3 text-white">
+                        <div className="p-2 bg-primary/10 rounded-xl text-primary border border-primary/20">
                             <Target className="w-4 h-4" />
                         </div>
                         Centro da Semana
                     </CardTitle>
-                    <CardDescription>Se apenas UMA coisa avançar, qual será?</CardDescription>
+                    <CardDescription className="text-xs text-muted-foreground">Se apenas UMA coisa avançar, qual será?</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <Input
                         value={plan.centerOfWeek}
                         onChange={(e) => setPlan({ ...plan, centerOfWeek: e.target.value })}
                         placeholder="Ex: Lançar campanha de Black Friday..."
-                        className="text-lg h-12"
+                        className="text-lg h-14 bg-black/20 border-white/5 rounded-xl placeholder:text-muted-foreground focus-visible:ring-primary/50 focus-visible:ring-offset-0 text-white transition-all"
                     />
                 </CardContent>
             </Card>
@@ -196,42 +199,44 @@ export default function SemanaViva() {
                     ) : (
                         <div className="space-y-3">
                             {plan.projects.map((project) => (
-                                <div key={project.id} className="group bg-secondary/20 rounded-xl p-4 space-y-3 border border-border transition-all hover:bg-secondary/40">
-                                    <div className="flex items-start gap-3">
-                                        <Input
-                                            value={project.name}
-                                            onChange={(e) => updateProject(project.id, { name: e.target.value })}
-                                            placeholder="Nome do projeto"
-                                            className="bg-transparent border-none shadow-none focus-visible:ring-0 p-0 h-auto text-base font-medium placeholder:text-muted-foreground/50"
-                                        />
+                                <div key={project.id} className="group bg-black/20 rounded-2xl p-5 space-y-4 border border-white/5 transition-all hover:bg-black/30 hover:border-white/10 shadow-lg">
+                                    <div className="flex items-center gap-4">
+                                        <div className="flex-1">
+                                            <Input
+                                                value={project.name}
+                                                onChange={(e) => updateProject(project.id, { name: e.target.value })}
+                                                placeholder="Nome do projeto"
+                                                className="bg-transparent border-none shadow-none focus-visible:ring-0 p-0 h-auto text-lg font-bold text-white placeholder:text-slate-700"
+                                            />
+                                        </div>
                                         <Button
                                             size="icon"
                                             variant="ghost"
                                             onClick={() => removeProject(project.id)}
-                                            className="h-8 w-8 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+                                            className="h-8 w-8 rounded-full text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10 opacity-0 group-hover:opacity-100 transition-all"
                                         >
                                             <Trash2 className="w-4 h-4" />
                                         </Button>
                                     </div>
-                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm pt-2 border-t border-border/50">
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm pt-2 border-t border-white/5">
                                         <label className="flex items-center gap-2 cursor-pointer">
                                             <input
                                                 type="checkbox"
                                                 checked={project.isAdvancing}
                                                 onChange={(e) => updateProject(project.id, { isAdvancing: e.target.checked })}
-                                                className="rounded border-input bg-transparent text-primary focus:ring-primary"
+                                                className="rounded border-input bg-transparent text-primary focus:ring-primary h-4 w-4"
                                             />
-                                            <span className="text-muted-foreground">Avançando</span>
+                                            <span className="text-slate-400 font-medium">Avançando</span>
                                         </label>
                                         <div className="flex items-center gap-2">
-                                            <span className="text-muted-foreground text-xs">Depende:</span>
+                                            <span className="text-slate-500 text-xs font-bold uppercase tracking-wider">Depende:</span>
                                             <select
                                                 value={project.dependsOn}
                                                 onChange={(e) => updateProject(project.id, { dependsOn: e.target.value as ProjectDependency })}
-                                                className="bg-transparent border-none text-xs font-medium focus:ring-0 cursor-pointer text-foreground"
+                                                className="bg-transparent border-none text-xs font-bold focus:ring-0 cursor-pointer text-white"
                                             >
-                                                <option value="me">Mim</option>
-                                                <option value="others">Outros</option>
+                                                <option value="me" className="bg-slate-900">Mim</option>
+                                                <option value="others" className="bg-slate-900">Outros</option>
                                             </select>
                                         </div>
                                         <label className="flex items-center gap-2 cursor-pointer">
@@ -239,9 +244,9 @@ export default function SemanaViva() {
                                                 type="checkbox"
                                                 checked={project.nextStepClear}
                                                 onChange={(e) => updateProject(project.id, { nextStepClear: e.target.checked })}
-                                                className="rounded border-input bg-transparent text-primary focus:ring-primary"
+                                                className="rounded border-input bg-transparent text-primary focus:ring-primary h-4 w-4"
                                             />
-                                            <span className="text-muted-foreground">Próx. claro</span>
+                                            <span className="text-slate-400 font-medium">Próx. claro</span>
                                         </label>
                                     </div>
                                 </div>
@@ -254,27 +259,28 @@ export default function SemanaViva() {
             {/* Content & Commercial Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Content */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-base font-medium flex items-center gap-2">
-                            <div className="p-1.5 bg-primary/10 rounded-lg text-primary">
+                <Card className="border-white/5 bg-card/40 backdrop-blur-xl">
+                    <CardHeader className="pb-4">
+                        <CardTitle className="text-base font-bold flex items-center gap-3 text-white">
+                            <div className="p-2 bg-primary/10 rounded-xl text-primary border border-primary/20">
                                 <ShoppingBag className="w-4 h-4" />
                             </div>
                             Conteúdo
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-4">
+                    <CardContent className="space-y-6">
                         <div className="space-y-2">
-                            <Label>Tema Central</Label>
+                            <Label className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Tema Central</Label>
                             <Input
                                 value={plan.content.theme}
                                 onChange={(e) => setPlan({ ...plan, content: { ...plan.content, theme: e.target.value } })}
                                 placeholder="Sobre o que vamos falar?"
+                                className="bg-black/20 border-white/5 rounded-xl h-12 text-white placeholder:text-slate-700 focus-visible:ring-primary/50 focus-visible:ring-offset-0"
                             />
                         </div>
-                        <div className="space-y-2">
-                            <Label>Objetivo Principal</Label>
-                            <div className="grid grid-cols-3 gap-2">
+                        <div className="space-y-3">
+                            <Label className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Objetivo Principal</Label>
+                            <div className="grid grid-cols-3 gap-3">
                                 {[
                                     { value: 'grow' as ContentPurpose, label: 'Crescer', emoji: '📈' },
                                     { value: 'warm' as ContentPurpose, label: 'Aquecer', emoji: '🔥' },
@@ -284,13 +290,13 @@ export default function SemanaViva() {
                                         key={option.value}
                                         onClick={() => setPlan({ ...plan, content: { ...plan.content, purpose: option.value } })}
                                         className={cn(
-                                            "flex flex-col items-center justify-center p-2 rounded-lg border text-xs transition-all",
+                                            "flex flex-col items-center justify-center p-3 rounded-2xl border text-[10px] font-bold uppercase tracking-tight transition-all",
                                             plan.content.purpose === option.value
-                                                ? "bg-primary/10 border-primary text-primary"
-                                                : "bg-transparent border-border hover:bg-muted"
+                                                ? "bg-primary/20 border-primary shadow-lg shadow-primary/10 text-white"
+                                                : "bg-black/20 border-white/5 hover:bg-white/5 text-slate-500"
                                         )}
                                     >
-                                        <span className="text-lg mb-1">{option.emoji}</span>
+                                        <span className="text-xl mb-1.5">{option.emoji}</span>
                                         {option.label}
                                     </button>
                                 ))}
@@ -299,39 +305,38 @@ export default function SemanaViva() {
                     </CardContent>
                 </Card>
 
-                {/* Commercial */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-base font-medium flex items-center gap-2">
-                            <div className="p-1.5 bg-primary/10 rounded-lg text-primary">
+                <Card className="border-white/5 bg-card/40 backdrop-blur-xl">
+                    <CardHeader className="pb-4">
+                        <CardTitle className="text-base font-bold flex items-center gap-3 text-white">
+                            <div className="p-2 bg-primary/10 rounded-xl text-primary border border-primary/20">
                                 <Shield className="w-4 h-4" />
                             </div>
                             Comercial
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-4">
+                    <CardContent className="space-y-6">
                         <div className="space-y-4">
-                            <label className="flex items-start gap-3 cursor-pointer group">
+                            <label className="flex items-start gap-4 cursor-pointer group p-3 rounded-xl hover:bg-white/5 transition-all outline outline-1 outline-transparent hover:outline-white/5">
                                 <input
                                     type="checkbox"
                                     checked={plan.commercial.focusClear}
                                     onChange={(e) => setPlan({ ...plan, commercial: { ...plan.commercial, focusClear: e.target.checked } })}
-                                    className="mt-1 rounded border-input bg-transparent text-primary focus:ring-primary h-4 w-4"
+                                    className="mt-1 rounded border-white/10 bg-black/40 text-primary focus:ring-primary h-5 w-5 transition-all"
                                 />
-                                <span className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">
-                                    O time sabe <span className="text-foreground font-medium">exatamente</span> o foco da semana?
+                                <span className="text-sm text-muted-foreground group-hover:text-white transition-colors leading-relaxed">
+                                    O time sabe <span className="text-primary font-bold">exatamente</span> o foco da semana?
                                 </span>
                             </label>
 
-                            <label className="flex items-start gap-3 cursor-pointer group">
+                            <label className="flex items-start gap-4 cursor-pointer group p-3 rounded-xl hover:bg-white/5 transition-all outline outline-1 outline-transparent hover:outline-white/5">
                                 <input
                                     type="checkbox"
                                     checked={plan.commercial.hasActiveActions}
                                     onChange={(e) => setPlan({ ...plan, commercial: { ...plan.commercial, hasActiveActions: e.target.checked } })}
-                                    className="mt-1 rounded border-input bg-transparent text-primary focus:ring-primary h-4 w-4"
+                                    className="mt-1 rounded border-white/10 bg-black/40 text-primary focus:ring-primary h-5 w-5 transition-all"
                                 />
-                                <span className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">
-                                    Existe ação ativa de vendas? (Não só rotina)
+                                <span className="text-sm text-muted-foreground group-hover:text-white transition-colors leading-relaxed">
+                                    Existe ação ativa de vendas? <span className="text-slate-500 italic">(Não só rotina)</span>
                                 </span>
                             </label>
                         </div>
@@ -340,22 +345,22 @@ export default function SemanaViva() {
             </div>
 
             {/* Footer Action */}
-            <div className="sticky bottom-4 z-10 pt-4">
+            <div className="pt-4">
                 <Button
                     size="lg"
-                    className="w-full shadow-2xl shadow-primary/30"
+                    className="w-full h-14 rounded-2xl text-sm font-bold bg-primary hover:bg-primary/90 shadow-[0_10px_30px_-10px_rgba(99,102,241,0.5)] transition-all"
                     onClick={handleSave}
                     disabled={isSaving}
                 >
                     {isSaving ? (
                         <>
-                            <Save className="w-5 h-5 mr-2 animate-pulse" />
-                            Salvando...
+                            <RefreshCw className="w-5 h-5 mr-3 animate-spin" />
+                            Sincronizando...
                         </>
                     ) : (
                         <>
-                            <Save className="w-5 h-5 mr-2" />
-                            Salvar Planejamento
+                            <Save className="w-5 h-5 mr-3" />
+                            Salvar Planejamento Estratégico
                         </>
                     )}
                 </Button>

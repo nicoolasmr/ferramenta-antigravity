@@ -99,15 +99,21 @@ export default function NumerosRegistro() {
         storage.saveMetricEntry(entry);
 
         // Sync
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
-            await supabase.from('metric_entries').upsert({
-                user_id: session.user.id,
-                metric_id: metricId,
-                date: todayISO,
-                payload: entry,
-                updated_at: new Date().toISOString()
-            }, { onConflict: 'user_id, metric_id, date' });
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                const { error } = await supabase.from('metric_entries').upsert({
+                    user_id: session.user.id,
+                    metric_id: metricId,
+                    date: todayISO,
+                    payload: entry,
+                    updated_at: new Date().toISOString()
+                }, { onConflict: 'user_id, metric_id, date' });
+
+                if (error) console.warn("Supabase sync ignored (metric_entries):", error.message);
+            }
+        } catch (e) {
+            console.warn("Supabase unavailable");
         }
 
         setLastSaved(prev => ({ ...prev, [metricId]: new Date().toISOString() }));
@@ -121,53 +127,62 @@ export default function NumerosRegistro() {
                 {metrics.map(metric => {
                     const status = statuses[metric.id];
                     const borderColor = {
-                        green: 'border-emerald-500/20',
-                        yellow: 'border-amber-500/50',
-                        red: 'border-red-500/50'
+                        green: 'border-border',
+                        yellow: 'border-amber-500/20',
+                        red: 'border-destructive/20'
                     }[status || 'green'];
 
                     const bgStatus = {
-                        green: '',
+                        green: 'bg-card',
                         yellow: 'bg-amber-500/5',
-                        red: 'bg-red-500/5'
+                        red: 'bg-destructive/5'
                     }[status || 'green'];
 
                     return (
-                        <Card key={metric.id} className={cn("transition-all", borderColor, bgStatus)}>
-                            <CardContent className="p-6">
-                                <div className="flex justify-between items-start mb-4">
-                                    <div>
-                                        <h3 className="font-medium text-lg">{metric.name}</h3>
-                                        <p className="text-xs text-muted-foreground">{metric.category} • {metric.unit}</p>
+                        <Card key={metric.id} className={cn("transition-all shadow-sm relative overflow-hidden group hover:shadow-lg hover:-translate-y-1 rounded-[2.5rem]", borderColor, bgStatus)}>
+                            <CardContent className="p-8">
+                                <div className="flex justify-between items-start mb-6">
+                                    <div className="space-y-1">
+                                        <h3 className="font-extrabold text-xl text-foreground group-hover:text-primary transition-colors">{metric.name}</h3>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-[10px] uppercase font-extrabold text-muted-foreground tracking-wider font-sans">{metric.category}</span>
+                                            <span className="w-1 h-1 rounded-full bg-border" />
+                                            <span className="text-[10px] uppercase font-extrabold text-muted-foreground tracking-wider font-sans">{metric.unit}</span>
+                                        </div>
                                     </div>
                                     {entries[metric.id] !== '' && (
-                                        <div className={cn("w-3 h-3 rounded-full mt-1.5", {
-                                            'bg-emerald-500': status === 'green',
-                                            'bg-amber-500 animate-pulse': status === 'yellow',
-                                            'bg-red-500 animate-pulse': status === 'red',
+                                        <div className={cn("w-3 h-3 rounded-full mt-2 ring-4", {
+                                            'bg-emerald-500 ring-emerald-500/10': status === 'green',
+                                            'bg-amber-500 ring-amber-500/10 animate-pulse': status === 'yellow',
+                                            'bg-red-500 ring-red-500/10 animate-pulse': status === 'red',
                                         })} />
                                     )}
                                 </div>
 
-                                <div className="flex gap-2 items-center">
+                                <div className="relative">
                                     <Input
                                         type="number"
-                                        placeholder="Valor"
-                                        className="text-lg h-12"
+                                        placeholder="0.00"
+                                        className="text-3xl font-extrabold h-20 bg-secondary border-border rounded-3xl px-6 focus-visible:ring-primary/20 focus-visible:border-primary/30 transition-all placeholder:text-muted-foreground/30 text-foreground"
                                         value={entries[metric.id]}
                                         onChange={e => handleInputChange(metric, e.target.value)}
                                         onBlur={() => handleSave(metric.id)}
                                     />
                                     {lastSaved[metric.id] && (
-                                        <div className="text-xs text-muted-foreground absolute bottom-3 right-6">
+                                        <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest absolute top-[-25px] right-2 flex items-center gap-1.5">
+                                            <CheckCircle2 className="w-3 h-3 text-emerald-500" />
                                             Salvo {getRelativeTime(lastSaved[metric.id])}
                                         </div>
                                     )}
                                 </div>
+
                                 {status === 'red' && entries[metric.id] !== '' && (
-                                    <div className="mt-3 flex items-start gap-2 text-xs text-red-400 bg-red-500/10 p-2 rounded">
-                                        <AlertTriangle className="w-4 h-4 shrink-0" />
-                                        <span>{metric.playbook.actionIfRed || 'Ação necessária!'}</span>
+                                    <div className="mt-6 flex items-start gap-4 text-xs text-destructive bg-destructive/10 p-4 rounded-2xl border border-destructive/20 animate-in slide-in-from-top-2 duration-300">
+                                        <AlertTriangle className="w-5 h-5 shrink-0 text-destructive" />
+                                        <div className="space-y-1">
+                                            <p className="font-extrabold uppercase tracking-tight">Ação Necessária</p>
+                                            <p className="font-medium opacity-80">{metric.playbook.actionIfRed || 'Ação imediata recomendada!'}</p>
+                                        </div>
                                     </div>
                                 )}
                             </CardContent>
