@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { storage, DailyCheck, MetricEntry, AnchorMetric } from '@/lib/storage';
 import { cn } from '@/lib/utils';
 import { Activity, Shield, TrendingUp, Users, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { StatusIndicator } from '@/components/ui/StatusIndicator';
 
 export default function LiveStatus() {
     const [dailyCheck, setDailyCheck] = useState<DailyCheck | null>(null);
@@ -76,17 +77,17 @@ export default function LiveStatus() {
                     <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest">Sinais do Dia</h3>
                 </div>
                 <div className="flex flex-col gap-3">
-                    <StatusLight
+                    <StatusIndicator
                         status={dailyCheck?.operationStatus}
                         label="Operação"
                         icon={Shield}
                     />
-                    <StatusLight
+                    <StatusIndicator
                         status={dailyCheck?.contentStatus}
                         label="Conteúdo"
                         icon={TrendingUp}
                     />
-                    <StatusLight
+                    <StatusIndicator
                         status={dailyCheck?.commercialAlignment}
                         label="Comercial"
                         icon={Users}
