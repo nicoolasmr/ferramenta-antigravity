@@ -99,6 +99,7 @@ export const STORAGE_KEYS = {
     DISMISSED_ALERTS: 'antigravity_dismissed_alerts',
     ANCHOR_METRICS: 'antigravity_anchor_metrics',
     METRIC_ENTRIES: 'antigravity_metric_entries',
+    PREFERENCES: 'antigravity_preferences',
 } as const;
 
 // Storage utilities
@@ -311,5 +312,13 @@ export const storage = {
             console.error('Error importing data:', error);
             return false;
         }
+    },
+    // Preferences
+    getPreferences(): any {
+        return this.get<any>(STORAGE_KEYS.PREFERENCES) || {};
+    },
+
+    savePreferences(prefs: any): void {
+        this.set(STORAGE_KEYS.PREFERENCES, prefs);
     },
 };

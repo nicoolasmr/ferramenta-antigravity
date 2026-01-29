@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Calendar, TrendingUp, Award, Shield, Settings, LogOut, ChevronRight, User, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
@@ -11,13 +12,18 @@ import Impacto from '@/components/Impacto'
 import AlertasHumanos from '@/components/AlertasHumanos'
 import NumerosAncora from '@/components/NumerosAncora'
 import NumerosInteligencia from '@/components/NumerosInteligencia'
+import Onboarding from '@/components/Onboarding'
+import RitualHoje from '@/components/RitualHoje'
+import SyncBadge from '@/components/SyncBadge'
 import { createClient } from '@/lib/supabase/client'
 import { syncEngine } from '@/lib/sync'
+import { storage } from '@/lib/storage'
 
 
 export default function Home() {
   const [user, setUser] = useState<any>(null)
   const [activeTab, setActiveTab] = useState('check')
+  const [showOnboarding, setShowOnboarding] = useState(false)
   const router = useRouter()
   const supabase = createClient()
 
@@ -27,17 +33,23 @@ export default function Home() {
       setUser(user)
 
       if (user) {
-        // Auto-pull latest data from Supabase to ensure consistency
+        // Auto-pull latest data
         try {
           await syncEngine.pullRemoteToLocal(user.id)
-          // Force a re-render of components listening to storage? 
-          // Components read from storage on mount. We need to make sure this happens fast or trigger a reload.
-          // Ideally we'd use a context/store, but for now we rely on the component's internal useEffects.
-          // If this pull finishes AFTER components mount, they show stale data.
-          // Hack: Force reload or rely on "Sincronizar Agora" for edge cases. 
-          // Better: Pass a key to tabs to force re-render.
+
+          // Check onboarding status
+          const prefs = storage.getPreferences()
+          if (!prefs.onboardingCompleted) {
+            setShowOnboarding(true)
+          }
         } catch (e) {
           console.error("Auto-sync failed", e)
+        }
+      } else {
+        // Guest mode, still check local storage
+        const prefs = storage.getPreferences()
+        if (!prefs.onboardingCompleted) {
+          setShowOnboarding(true)
         }
       }
     }
@@ -64,6 +76,7 @@ export default function Home() {
           </div>
 
           <div className="flex items-center gap-3">
+            <SyncBadge />
             {user ? (
               <div className="flex items-center gap-3 bg-secondary/50 backdrop-blur-md p-2 rounded-full border border-white/5 pl-4">
                 <span className="text-sm font-medium hidden md:block">
@@ -85,6 +98,11 @@ export default function Home() {
             )}
           </div>
         </header>
+
+        {/* Ritual Area */}
+        <section className="mb-12">
+          <RitualHoje onNavigate={setActiveTab} />
+        </section>
 
         {/* Main Content */}
         <Tabs key={user ? 'logged-in' : 'guest'} value={activeTab} onValueChange={setActiveTab} className="w-full space-y-8">
@@ -143,6 +161,10 @@ export default function Home() {
           <p>© 2026 Antigravity System. Sustentando quem sustenta.</p>
         </footer>
       </div>
+
+      <AnimatePresence>
+        {showOnboarding && <Onboarding onComplete={() => setShowOnboarding(false)} />}
+      </AnimatePresence>
     </div>
   )
 }

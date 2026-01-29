@@ -169,16 +169,19 @@ export default function SettingsPage() {
                             </div>
 
                             <div className="space-y-3">
-                                <Label>Densidade de Interface</Label>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="p-4 border-2 border-primary bg-primary/5 rounded-xl cursor-pointer">
-                                        <div className="font-medium text-primary mb-1">Confortável</div>
-                                        <div className="text-xs text-muted-foreground">Espaçamento generoso, foco e calma.</div>
+                                <Label>Fluxo de Introdução</Label>
+                                <div className="p-4 bg-primary/5 rounded-xl border border-primary/10 flex items-center justify-between">
+                                    <div className="space-y-0.5">
+                                        <div className="font-medium">Onboarding Antigravity</div>
+                                        <div className="text-xs text-muted-foreground">Revisar os conceitos base da ferramenta.</div>
                                     </div>
-                                    <div className="p-4 border border-border hover:bg-accent rounded-xl cursor-pointer opacity-50">
-                                        <div className="font-medium mb-1">Compacta</div>
-                                        <div className="text-xs text-muted-foreground">Mais informação por tela. (Em breve)</div>
-                                    </div>
+                                    <Button variant="outline" size="sm" onClick={() => {
+                                        const prefs = storage.getPreferences();
+                                        storage.savePreferences({ ...prefs, onboardingCompleted: false });
+                                        toast("Onboarding resetado! Volte ao início para ver.", "success");
+                                    }}>
+                                        Rever Onboarding
+                                    </Button>
                                 </div>
                             </div>
                         </CardContent>
