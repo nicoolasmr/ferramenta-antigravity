@@ -28,7 +28,7 @@ export function Sidebar({ activeTab, setActiveTab, user }: SidebarProps) {
         <aside className="w-64 shrink-0 flex flex-col gap-10">
             <div className="px-4">
                 <div className="relative inline-block">
-                    <div className="absolute inset-0 bg-purple-400/20 blur-[40px] rounded-full scale-150 -z-10" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-primary/30 via-pink-500/30 to-primary/30 blur-[50px] rounded-full scale-150 -z-10 animate-pulse-glow" />
                     <h1 className="text-xl font-bold tracking-tighter text-foreground title-glow uppercase">
                         Antigravity
                     </h1>
@@ -43,11 +43,11 @@ export function Sidebar({ activeTab, setActiveTab, user }: SidebarProps) {
                         className={cn(
                             "flex items-center gap-4 px-6 py-4 rounded-2xl text-sm font-extrabold uppercase tracking-widest transition-all duration-300",
                             activeTab === tab.value
-                                ? "text-primary bg-card shadow-xl shadow-primary/5 ring-1 ring-border translate-x-1"
-                                : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                                ? "text-white bg-gradient-to-r from-primary to-pink-500 shadow-glow-primary ring-1 ring-primary/50 translate-x-1 scale-105"
+                                : "text-muted-foreground hover:text-foreground hover:bg-white/5 hover:scale-102"
                         )}
                     >
-                        <tab.icon className={cn("w-5 h-5", activeTab === tab.value ? "text-primary" : "text-slate-300")} />
+                        <tab.icon className={cn("w-5 h-5 transition-transform", activeTab === tab.value ? "text-white scale-110" : "text-slate-400")} />
                         {tab.label}
                     </button>
                 ))}

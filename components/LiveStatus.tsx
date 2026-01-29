@@ -66,12 +66,19 @@ export default function LiveStatus() {
 
         return (
             <div className={cn(
-                "flex items-center gap-3 p-3 rounded-xl border transition-all duration-500",
-                getColor(status),
-                status ? "scale-100" : "opacity-60 scale-95"
+                "flex items-center gap-3 p-3 rounded-xl border transition-all duration-500 glass-subtle",
+                status === 'green' || status === 'aligned' || status === 'fulfilled' ? "border-emerald-500/30 shadow-glow-success" : "",
+                status === 'yellow' || status === 'partial' || status === 'at-risk' ? "border-amber-500/30 shadow-glow-warning" : "",
+                status === 'red' || status === 'misaligned' || status === 'not-priority' ? "border-rose-500/30 shadow-glow-danger animate-pulse-glow" : "",
+                !status ? "opacity-60 scale-95" : "scale-100"
             )}>
-                <div className="p-2 bg-white/5 rounded-lg backdrop-blur-sm">
-                    <Icon className="w-4 h-4" />
+                <div className="p-2 glass-subtle rounded-lg">
+                    <Icon className={cn(
+                        "w-4 h-4",
+                        status === 'green' || status === 'aligned' || status === 'fulfilled' ? "text-emerald-400" : "",
+                        status === 'yellow' || status === 'partial' || status === 'at-risk' ? "text-amber-400" : "",
+                        status === 'red' || status === 'misaligned' || status === 'not-priority' ? "text-rose-400" : "text-slate-500"
+                    )} />
                 </div>
                 <div>
                     <div className="text-[10px] uppercase font-bold opacity-80 tracking-wider transition-colors">{label}</div>
@@ -107,7 +114,7 @@ export default function LiveStatus() {
                     />
                 </div>
                 {dailyCheck?.hasBottleneck && (
-                    <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl flex items-start gap-3 animate-slide-in">
+                    <div className="p-3 glass-subtle border border-rose-500/30 rounded-xl flex items-start gap-3 animate-slide-in shadow-glow-danger">
                         <AlertCircle className="w-4 h-4 text-rose-500 mt-0.5 shrink-0" />
                         <p className="text-xs text-rose-400 font-medium leading-relaxed">
                             <span className="font-bold block mb-0.5 text-rose-300">Atenção Necessária:</span>
@@ -138,7 +145,7 @@ export default function LiveStatus() {
                             return (
                                 <div key={metric.id} className={cn(
                                     "p-3 rounded-lg border transition-all duration-300",
-                                    entry ? "bg-white/10 border-white/10 shadow-lg backdrop-blur-sm" : "bg-white/5 border-transparent opacity-60"
+                                    entry ? "glass-card border-white/10 shadow-lg" : "glass-subtle border-transparent opacity-60"
                                 )}>
                                     <div className="text-[10px] text-slate-400 font-bold uppercase truncate mb-1">{metric.name}</div>
                                     <div className="flex items-end gap-1">

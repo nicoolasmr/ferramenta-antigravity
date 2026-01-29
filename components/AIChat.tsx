@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User, Loader2, Sparkles, Command } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { getAIContext } from '@/lib/ai-context';
 import { storage, DailyCheck, MetricEntry, WeeklyPlan, ImpactLog } from '@/lib/storage';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -163,8 +164,8 @@ export default function AIChat() {
     };
 
     return (
-        <Card className="flex flex-col h-[600px] border-white/5 bg-card/40 backdrop-blur-xl overflow-hidden shadow-2xl relative">
-            <CardHeader className="border-b border-white/5 bg-white/5 py-4 flex flex-row items-center justify-between">
+        <Card className="flex flex-col h-[600px] glass-card overflow-hidden shadow-glow-primary relative">
+            <CardHeader className="border-b border-white/10 glass-subtle py-4 flex flex-row items-center justify-between">
                 <div className="flex items-center gap-3">
                     <div className="p-2 bg-primary/20 rounded-lg border border-primary/20">
                         <Bot className="w-5 h-5 text-primary" />
@@ -180,29 +181,42 @@ export default function AIChat() {
             </CardHeader>
 
             <CardContent className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-hide" ref={scrollRef}>
-                {messages.map((msg, idx) => (
-                    <div key={idx} className={cn(
-                        "flex w-full animate-fade-in",
-                        msg.role === 'user' ? "justify-end" : "justify-start"
-                    )}>
-                        <div className={cn(
-                            "max-w-[85%] p-4 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap font-medium shadow-xl transition-all",
-                            msg.role === 'user'
-                                ? "bg-primary text-white rounded-tr-none border border-primary/20"
-                                : "bg-black/40 border border-white/5 rounded-tl-none text-slate-300"
-                        )}>
-                            {msg.content}
-                        </div>
-                    </div>
-                ))}
+                <AnimatePresence mode="popLayout">
+                    {messages.map((msg, idx) => (
+                        <motion.div
+                            key={idx}
+                            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                            className={cn(
+                                "flex w-full",
+                                msg.role === 'user' ? "justify-end" : "justify-start"
+                            )}
+                        >
+                            <div className={cn(
+                                "max-w-[85%] p-4 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap font-medium shadow-xl transition-all",
+                                msg.role === 'user'
+                                    ? "bg-gradient-to-br from-primary to-pink-500 text-white rounded-tr-none border border-primary/20 shadow-glow-primary"
+                                    : "glass-subtle rounded-tl-none text-slate-300"
+                            )}>
+                                {msg.content}
+                            </div>
+                        </motion.div>
+                    ))}
+                </AnimatePresence>
 
                 {isLoading && (
-                    <div className="flex justify-start animate-pulse">
-                        <div className="bg-black/40 border border-white/5 p-4 rounded-2xl rounded-tl-none flex items-center gap-3 text-xs text-slate-500 font-bold uppercase tracking-wider">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="flex justify-start"
+                    >
+                        <div className="glass-subtle p-4 rounded-2xl rounded-tl-none flex items-center gap-3 text-xs text-slate-500 font-bold uppercase tracking-wider">
                             <Loader2 className="w-4 h-4 animate-spin text-primary" />
                             Pensando...
                         </div>
-                    </div>
+                    </motion.div>
                 )}
 
                 {executingCommand && (
@@ -215,16 +229,16 @@ export default function AIChat() {
                 )}
             </CardContent>
 
-            <div className="p-4 border-t border-white/5 bg-black/20">
+            <div className="p-4 border-t border-white/10 glass-subtle">
                 <form onSubmit={e => { e.preventDefault(); handleSend(); }} className="flex gap-2">
                     <Input
                         placeholder="Atualize o dia, números ou peça ajuda..."
                         value={input}
                         onChange={e => setInput(e.target.value)}
                         disabled={isLoading}
-                        className="flex-1 bg-black/40 border-white/5 text-white placeholder:text-slate-600 focus-visible:ring-primary/50 focus-visible:ring-offset-0 rounded-xl h-12 transition-all"
+                        className="flex-1 glass-subtle text-white placeholder:text-slate-600 focus-visible:ring-2 focus-visible:ring-primary focus-visible:shadow-glow-primary focus-visible:ring-offset-0 rounded-xl h-12 transition-all"
                     />
-                    <Button type="submit" disabled={isLoading || !input.trim()} size="icon" className="h-12 w-12 rounded-xl bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all">
+                    <Button type="submit" disabled={isLoading || !input.trim()} size="icon" className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary to-pink-500 hover:scale-105 shadow-glow-primary transition-all">
                         <Send className="w-4 h-4" />
                     </Button>
                 </form>

@@ -1,3 +1,4 @@
+import { logger } from './logger';
 // Type definitions for Antigravity data structures
 
 export type OperationStatus = 'green' | 'yellow' | 'red';
@@ -119,8 +120,23 @@ export const storage = {
         if (typeof window === 'undefined') return;
         try {
             localStorage.setItem(key, JSON.stringify(value));
-        } catch (error) {
-            console.error(`Error writing to localStorage: ${key}`, error);
+        } catch (error: any) {
+            // Handle QuotaExceededError - Bug #8 from PLAN.md
+            if (error.name === 'QuotaExceededError' || error.message.includes('quota')) {
+                const { handleQuotaExceeded } = require('./error-handler');
+                const recovered = handleQuotaExceeded(error);
+                if (recovered) {
+                    try {
+                        localStorage.setItem(key, JSON.stringify(value));
+                        return;
+                    } catch (retryError) {
+                        logger.error('localStorage retry failed after purge', { key });
+                    }
+                }
+            }
+            logger.error(`Error writing to localStorage: ${key}`, {
+                error: error instanceof Error ? error.message : String(error)
+            });
         }
     },
 
