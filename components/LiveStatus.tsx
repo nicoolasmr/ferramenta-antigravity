@@ -3,8 +3,19 @@
 import { useEffect, useState } from 'react';
 import { storage, DailyCheck, MetricEntry, AnchorMetric } from '@/lib/storage';
 import { cn } from '@/lib/utils';
-import { Activity, Shield, TrendingUp, Users, AlertCircle, CheckCircle2 } from 'lucide-react';
-import { StatusIndicator } from '@/components/ui/StatusIndicator';
+import { Activity, Shield, TrendingUp, Users, AlertCircle, Plus } from 'lucide-react';
+
+const STATUS_TRANSLATIONS: Record<string, string> = {
+    'green': 'Verde',
+    'yellow': 'Atenção',
+    'red': 'Crítico',
+    'fulfilled': 'Realizado',
+    'at-risk': 'Em Risco',
+    'not-priority': 'Não Prioritário',
+    'aligned': 'Alinhado',
+    'partial': 'Parcial',
+    'misaligned': 'Desalinhado'
+};
 
 export default function LiveStatus() {
     const [dailyCheck, setDailyCheck] = useState<DailyCheck | null>(null);
@@ -51,6 +62,8 @@ export default function LiveStatus() {
             return 'bg-white/5 text-slate-500 border-white/5'; // Default/Empty
         };
 
+        const translatedStatus = status ? (STATUS_TRANSLATIONS[status] || status) : 'Pendente';
+
         return (
             <div className={cn(
                 "flex items-center gap-3 p-3 rounded-xl border transition-all duration-500",
@@ -62,14 +75,14 @@ export default function LiveStatus() {
                 </div>
                 <div>
                     <div className="text-[10px] uppercase font-bold opacity-80 tracking-wider transition-colors">{label}</div>
-                    <div className="text-sm font-extrabold capitalize">{status ? status.replace('-', ' ') : 'Pendente'}</div>
+                    <div className="text-sm font-extrabold capitalize">{translatedStatus}</div>
                 </div>
             </div>
         );
     };
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in group">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in group h-full">
             {/* Daily Check Status */}
             <div className="space-y-4">
                 <div className="flex items-center gap-2 mb-2">
@@ -77,17 +90,17 @@ export default function LiveStatus() {
                     <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest">Sinais do Dia</h3>
                 </div>
                 <div className="flex flex-col gap-3">
-                    <StatusIndicator
+                    <StatusLight
                         status={dailyCheck?.operationStatus}
                         label="Operação"
                         icon={Shield}
                     />
-                    <StatusIndicator
+                    <StatusLight
                         status={dailyCheck?.contentStatus}
                         label="Conteúdo"
                         icon={TrendingUp}
                     />
-                    <StatusIndicator
+                    <StatusLight
                         status={dailyCheck?.commercialAlignment}
                         label="Comercial"
                         icon={Users}
@@ -105,15 +118,18 @@ export default function LiveStatus() {
             </div>
 
             {/* Anchor Metrics Ticker */}
-            <div className="space-y-4">
-                <div className="flex items-center gap-2 mb-2">
+            <div className="flex flex-col space-y-4 h-full">
+                <div className="flex items-center gap-2 mb-2 shrink-0">
                     <TrendingUp className="w-4 h-4 text-primary" />
                     <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest">Números Hoje</h3>
                 </div>
 
                 {metrics.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center h-full p-6 border border-dashed border-white/10 bg-white/5 rounded-xl text-center">
-                        <p className="text-xs text-slate-500 mb-2">Nenhum número configurado</p>
+                    <div className="flex-1 flex flex-col items-center justify-center p-6 border border-dashed border-white/10 bg-white/5 rounded-xl text-center group/empty transition-colors hover:border-primary/20 hover:bg-primary/5 cursor-pointer">
+                        <div className="p-3 bg-white/5 rounded-full mb-3 group-hover/empty:scale-110 transition-transform">
+                            <Plus className="w-5 h-5 text-slate-600 group-hover/empty:text-primary transition-colors" />
+                        </div>
+                        <p className="text-xs text-slate-500 font-medium group-hover/empty:text-primary/80 transition-colors">Configurar Números</p>
                     </div>
                 ) : (
                     <div className="grid grid-cols-2 gap-3">
